@@ -47,7 +47,6 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
 
     def parse_products(products)
         products.elements.each do |xml_product|
-            debugger
             product = Product.find_or_initialize_by_code_1c(xml_product.elements[1].text)
             if product.new_record?
                 product.name = xml_product.elements[3].text
