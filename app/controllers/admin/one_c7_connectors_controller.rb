@@ -2,12 +2,21 @@
 class Admin::OneC7ConnectorsController < Admin::BaseController
     def create
         # If file present
-        if params[:one_c7][:xml_file]
+        if params[:one_c7][:xml_file] && params[:one_c7][:offers_file]
+            #import file loading here
             file = params[:one_c7][:xml_file]
             path = "#{Rails.root}/tmp/#{file.original_filename}"
             File.open(path, "wb") { |f| f.write file.read }
             # Parsing
             xml = REXML::Document.new(File.read(path))
+
+            #offers file loading here
+            file = params[:one_c7][:offers_file]
+            path = "#{Rails.root}/tmp/#{file.original_filename}"
+            File.open(path, "wb") { |f| f.write file.read }
+            # Parsing
+            offers_xml = REXML::Document.new(File.read(path))
+
             taxonomy = Taxonomy.find(params[:one_c7][:taxonomy])
             xml.elements.first.elements.first.elements.each do |el|
                 if el.expanded_name == 'Группы'
