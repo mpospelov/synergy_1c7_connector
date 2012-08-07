@@ -42,6 +42,7 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
             end
 
             parse_products(xml.elements.first.elements[2].elements[5])
+            parse_products_with_prices(offers_xml.root.elements.first.elements[7])
 
             # delete xml file after parsing
             File.delete(path)
@@ -53,6 +54,22 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
     end
 
     private
+
+    def parse_products_with_prices(products)
+        products.elements.each do |xml_product|
+            product = Product.find_by_code_1c(xml_product.elements[1].text.split('#').first)
+            variant = Variant.new(:product_id => product.id,
+                                  :price => xml_product.elements[4].elements[1].elements[3].text,
+                                  :cost_price => xml_product.elements[4].elements[1].elements[3].text,
+                                  :count_on_hand => xml_product.elements[5].text)
+
+            xml_product.elements[3].elements.each do |option|
+                option_value = OptionValue.find_or_create(:option_type_id => OptionType.find_by_name(option.elements[1]), :name => option.elements[2],:presentation => option.elements[2])
+                variant.option_values << option_value
+            end
+            variant.save
+        end
+    end
 
     def parse_products(products)
         products.elements.each do |xml_product|
