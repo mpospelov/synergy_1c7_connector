@@ -6,11 +6,12 @@ ru:
       taxon:
         code_1c: "Код 1C"
 
-  one_c7_connector: "Коннектор с 1С 7.7"
-  one_c7_connector_desc: "Импорт товаров из XML файлов 1C 7.7"
-  
+  one_c7_connector: "Коннектор с 1С"
+  one_c7_connector_desc: "Импорт товаров из XML файлов 1C"
+
   parsein_taxonomy: "Корневая таксономия для загрузки"
-  xml_file: "XML файл 1С 7.7"
+  xml_file: "import.xml загружать здесь"
+  offers_file: "offers.xml загружать здесь"
   import: "Импортировать"
   no_selected_file: "Не выбран файл для загрузки"
   successful_1c_import: "Импорт товаров успешно выполнен"

@@ -7,12 +7,19 @@
     <%= label_tag "one_c7[taxonomy]", t(:parsein_taxonomy) %>:<br />
     <%= select_tag "one_c7[taxonomy]", options_for_select(Taxonomy.all.collect { |t| [t.name, t.id] }) %>
   </p>
-  
+
   <p>
     <%= label_tag "one_c7[xml_file]", t(:xml_file) %>:<br />
     <%= file_field_tag "one_c7[xml_file]" %>
   </p>
-  
+
+  <p>
+    <%= label_tag "one_c7[offers_file]", t(:offers_file) %>:<br />
+    <%= file_field_tag "one_c7[xml_file]" %>
+  </p>
+
+
+
   <p class="form-buttons">
     <%= button t(:import) %>
   </p>
