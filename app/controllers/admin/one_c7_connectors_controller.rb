@@ -12,11 +12,11 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
 
             #offers file loading here
             file = params[:one_c7][:offers_file]
-            path = "#{Rails.root}/tmp/#{file.original_filename}"
-            File.open(path, "wb") { |f| f.write file.read }
+            path1 = "#{Rails.root}/tmp/#{file.original_filename}"
+            File.open(path1, "wb") { |f| f.write file.read }
             # Parsing
-            offers_xml = REXML::Document.new(File.read(path))
-
+            offers_xml = Nokogiri::XML.parse(File.read(path1))
+            debugger
             taxonomy = Taxonomy.find(params[:one_c7][:taxonomy])
             xml.elements.first.elements.first.elements.each do |el|
                 if el.expanded_name == 'Группы'
@@ -42,10 +42,14 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
             end
 
             parse_products(xml.elements.first.elements[2].elements[5])
-            parse_products_with_prices(offers_xml.root.elements.first.elements[7])
+            parse_products_with_prices(offers_xml.css("Предложения"))
+
+            set_product_price
+
 
             # delete xml file after parsing
             File.delete(path)
+            File.delete(path1)
             redirect_to new_admin_one_c7_connector_path, :notice => t(:successful_1c_import)
         else
             flash[:error] = t(:no_selected_file)
@@ -55,16 +59,50 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
 
     private
 
+    def set_product_price
+        Product.all.each do |product|
+            variant = product.variant
+            variant.price = product.variants.second.price
+            variant.cost_price = product.variants.second.cost_price
+            debugger
+        end
+    end
     def parse_products_with_prices(products)
-        products.elements.each do |xml_product|
-            product = Product.find_by_code_1c(xml_product.elements[1].text.split('#').first)
-            variant = Variant.new(:product_id => product.id,
-                                  :price => xml_product.elements[4].elements[1].elements[3].text,
-                                  :cost_price => xml_product.elements[4].elements[1].elements[3].text,
-                                  :count_on_hand => xml_product.elements[5].text)
+        products.children.each do |xml_product|
 
-            xml_product.elements[3].elements.each do |option|
-                option_value = OptionValue.find_or_create(:option_type_id => OptionType.find_by_name(option.elements[1]), :name => option.elements[2],:presentation => option.elements[2])
+            debugger
+            unique_flag = true
+            product = Product.find_by_code_1c(xml_product.elements[1].text.split('#').first)
+            if xml_product.elements[2].expanded_name == "Штрихкод"
+                magic_number = 1
+            else
+                magic_number = 0
+            end
+
+            if xml_product.elements[4 + magic_number].expanded_name == "Статус"
+                magic_number=magic_number+1
+            end
+
+            variant = Variant.find_or_initialize_by_code_1c(xml_product.elements[1].text)
+            puts xml_product.elements[1].text
+            variant.product_id = product.id
+            variant.price = xml_product.elements[4 + magic_number].elements[1].elements[3].text
+            variant.cost_price =xml_product.elements[4 + magic_number].elements[1].elements[3].text
+            xml_product.elements.each do |el|
+                if el.expanded_name == "Количество"
+                variant.count_on_hand =xml_product.elements[5 + magic_number ].text
+                end
+            end
+            xml_product.elements[3 + magic_number ].elements.each do |option|
+                if ProductOptionType.where(:product_id => product.id, :option_type_id => OptionType.find_by_name(option.elements[1].text).id).blank?
+                    product_option_type = ProductOptionType.new(:product => product, :option_type => OptionType.find_by_name(option.elements[1].text))
+                    product_option_type.save
+                end
+                if OptionValue.find_by_name(option.elements[2].text)
+                    option_value = OptionValue.find_by_name(option.elements[2].text)
+                else
+                    option_value = OptionValue.create(:option_type_id => OptionType.find_by_name(option.elements[1].text), :name => option.elements[2].text,:presentation => option.elements[2].text)
+                end
                 variant.option_values << option_value
             end
             variant.save
