@@ -41,7 +41,7 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
             end
 
             parse_products(xml.elements.first.elements[2].elements[5])
-           # parse_products_with_prices(offers_xml.css("Предложение"))
+            parse_products_with_prices(offers_xml.css("Предложение"))
 
             set_product_price
 
