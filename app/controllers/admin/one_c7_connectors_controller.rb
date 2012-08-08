@@ -16,7 +16,6 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
             File.open(path1, "wb") { |f| f.write file.read }
             # Parsing
             offers_xml = Nokogiri::XML.parse(File.read(path1))
-            debugger
             taxonomy = Taxonomy.find(params[:one_c7][:taxonomy])
             xml.elements.first.elements.first.elements.each do |el|
                 if el.expanded_name == 'Группы'
@@ -70,7 +69,6 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
     def parse_products_with_prices(products)
         products.children.each do |xml_product|
 
-            debugger
             unique_flag = true
             product = Product.find_by_code_1c(xml_product.elements[1].text.split('#').first)
             if xml_product.elements[2].expanded_name == "Штрихкод"
