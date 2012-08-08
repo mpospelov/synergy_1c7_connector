@@ -85,10 +85,10 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
                     product_option_type = ProductOptionType.new(:product => product, :option_type => OptionType.find_by_name(option.css("Наименование").text))
                     product_option_type.save
                 end
-                if OptionValue.find_by_name(option.css("Значение").text)
-                    option_value = OptionValue.find_by_name(option.css("Значение").text)
+                if OptionValue.find_by_name_and_option_type_id(option.css("Значение").text, OptionType.find_by_name(option.css("Наименование").text).id)
+                    option_value = OptionValue.find_by_name_and_option_type_id(option.css("Значение").text, OptionType.find_by_name(option.css("Наименование").text).id)
                 else
-                    option_value = OptionValue.create(:option_type_id => OptionType.find_by_name(option.css("Наименование").text), :name => option.css("Значение").text,:presentation => option.css("Значение").text)
+                    option_value = OptionValue.create(:option_type_id => OptionType.find_by_name(option.css("Наименование").text).id, :name => option.css("Значение").text,:presentation => option.css("Значение").text)
                 end
                 variant.option_values << option_value
             end
