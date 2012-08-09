@@ -68,8 +68,8 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
 
             variant = Variant.find_or_initialize_by_code_1c(xml_product.css("Ид").text)
             variant.product_id = product.id
-            variant.price = xml_product.css("ЦенаЗаЕдиницу").text
-            variant.cost_price =xml_product.css("ЦенаЗаЕдиницу").text
+            variant.price = xml_product.css("ЦенаЗаЕдиницу").first.text
+            variant.cost_price =xml_product.css("ЦенаЗаЕдиницу").last.text
             variant.count_on_hand = xml_product.css("Количество").text if not xml_product.css("Количество").text.blank?
             xml_product.css("ХарактеристикаТовара").each do |option|
                 if ProductOptionType.where(:product_id => product.id, :option_type_id => OptionType.find_by_name(option.css("Наименование").text).id).blank?
@@ -108,24 +108,5 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
         end
     end
 
-    def parse_product(taxon, el)
-        product = Product.find_or_initialize_by_code_1c(el.attribute('Код').value)
-
-        if product.new_record?
-            product.name = el.attribute('Наименование').value
-            product.price = el.attribute('Цена').value.present? ? el.attribute('Цена').value : 0
-            product.available_on = Time.now
-            product.taxons << taxon
-            product.save!
-        else
-            product.update_attributes(:name => el.attribute('Наименование').value, :price => el.attribute('Цена').value)
-            # Update taxon only have non-empty code_1c attribute
-            unless product.taxons.include?(taxon)
-                old_taxon = product.taxons.select { |t| t.code_1c != nil }
-                product.taxons.delete(old_taxon)
-                product.taxons << taxon
-            end
-        end
-    end
 end
 
