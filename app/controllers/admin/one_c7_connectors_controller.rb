@@ -17,8 +17,11 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
             # Parsing
             offers_xml = Nokogiri::XML.parse(File.read(path1))
 
-            parse_groups_from_import_xml(xml.css("Классификатор Группы Группа"), Taxonomy.find(params[:one_c7][:taxonomy]).taxons.first.id)
-            parse_products(xml.elements.first.elements[2].elements[5])
+            taxonomy = Taxonomy.find_or_create_by_name(xml.css("Классификатор Группы Группа Наименование").first.text)
+            taxonomy.update_attributes(:show_on_homepage => true)
+            taxonomy.taxons.first.update_attributes(:name => xml.css("Классификатор Группы Группа Наименование").first.text, :code_1c => xml.css("Классификатор Группы Группа Ид").first.text)
+            parse_groups_from_import_xml(xml.css("Классификатор Группы Группа Группы Группа"), taxonomy.taxons.first)
+            parse_products(xml.css("Товар"))
             parse_products_offers_xml(offers_xml.css("Предложение"))
 
             set_product_price
@@ -51,9 +54,11 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
 
     def parse_groups_from_import_xml(groups, taxon)
         groups.each do |group|
-            new_taxon = Taxon.find_or_create_by_code_1c(group.css("Ид").text)
-            new_taxon.update_attributes(:name => group.css("Наименование").text, :parent_id => taxon.id)
-            parse_groups_from_import_xml(group.css("Группы Группа"), new_taxon)
+            new_taxon = Taxon.find_or_create_by_code_1c(group.css("Ид").first.text)
+            if new_taxon.new_record?
+                new_taxon.update_attributes(:name => group.css("Наименование").first.text, :taxonomy_id => taxon.taxonomy_id, :parent_id => taxon.id)
+                parse_groups_from_import_xml(group.css("Группы Группа"), new_taxon)
+            end
         end
     end
 
@@ -62,7 +67,6 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
             product = Product.find_by_code_1c(xml_product.css("Ид").text.split('#').first)
 
             variant = Variant.find_or_initialize_by_code_1c(xml_product.css("Ид").text)
-            puts xml_product.css("Ид").text
             variant.product_id = product.id
             variant.price = xml_product.css("ЦенаЗаЕдиницу").text
             variant.cost_price =xml_product.css("ЦенаЗаЕдиницу").text
@@ -84,27 +88,23 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
     end
 
     def parse_products(products)
-        products.elements.each do |xml_product|
-            product = Product.find_or_initialize_by_code_1c(xml_product.elements[1].text)
+        products.each do |xml_product|
+            product = Product.find_or_initialize_by_code_1c(xml_product.css("Ид").first.text)
             if product.new_record?
-                product.name = xml_product.elements[3].text
+                product.name = xml_product.css("Наименование").first.text
                 product.price = 0
                 product.available_on = Time.now
-
-                xml_product.elements[6].elements.each do |xml_taxon|
+                xml_product.css("Группы Ид").each do |xml_taxon|
                     product.taxons << Taxon.where(:code_1c => xml_taxon.text)
                 end
-
                 product.save!
             else
-                product.update_attributes(:name => xml_product.elements[3].text, :price => 0)
+                product.update_attributes(:name => xml_product.css("Наименование").first.text, :price => 0)
                 # Update taxon only have non-empty code_1c attribute
-                xml_product.elements[6].elements.each do |xml_taxon|
+                xml_product.css("Группы Ид").each do |xml_taxon|
                     product.taxons << Taxon.where(:code_1c => xml_taxon.text)
                 end
             end
-
-
         end
     end
 
