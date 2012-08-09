@@ -8,7 +8,7 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
             path = "#{Rails.root}/tmp/#{file.original_filename}"
             File.open(path, "wb") { |f| f.write file.read }
             # Parsing
-            xml = REXML::Document.new(File.read(path))
+            xml = Nokogiri::XML.parse(File.read(path))
 
             #offers file loading here
             file = params[:one_c7][:offers_file]
@@ -16,32 +16,10 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
             File.open(path1, "wb") { |f| f.write file.read }
             # Parsing
             offers_xml = Nokogiri::XML.parse(File.read(path1))
-            taxonomy = Taxonomy.find(params[:one_c7][:taxonomy])
-            xml.elements.first.elements.first.elements.each do |el|
-                if el.expanded_name == 'Группы'
-                    el.elements.each do |group|
-                        # Always taxon, find or create it; rename if names different
-                        if group.expanded_name == 'Группа'
-                            # Children group
-                            #parent_taxon = Taxon.find_by_code_1c(el.attribute('Группа').value)
-                            #new_taxon = taxonomy.taxons.find_or_create_by_code_1c(el.attribute('Код').value)
-                            #new_taxon.update_attributes(:name => el.attribute('Наименование').value, :parent_id => parent_taxon.id)
-                            #else
-                            # Root group
-                            taxon = taxonomy.taxons.find_or_create_by_code_1c(group.elements[1].text)
-                            taxon.update_attributes(:name => group.elements[2].text, :parent_id => taxonomy.taxons.first.id)
-                        end
-                    end
-                    #else
-                    # Always Product, find or create it; rename if names different
-                    #   taxon = el.attribute('Группа') ? Taxon.find_by_code_1c(el.attribute('Группа').value) : Taxon.where(:taxonomy_id => params[:one_c7][:taxonomy], :parent_id => nil).first
-                    #  parse_product(taxon, el) if taxon && el.attribute('Наименование').value.present?
 
-                end
-            end
-
+            parse_groups_from_import_xml(xml.css("Классификатор Группы Группа"), Taxonomy.find(params[:one_c7][:taxonomy]).taxons.first.id)
             parse_products(xml.elements.first.elements[2].elements[5])
-            parse_products_with_prices(offers_xml.css("Предложение"))
+            parse_products_offers_xml(offers_xml.css("Предложение"))
 
             set_product_price
 
@@ -70,7 +48,16 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
             end
         end
     end
-    def parse_products_with_prices(products)
+
+    def parse_groups_from_import_xml(groups, taxon)
+        groups.each do |group|
+            new_taxon = Taxon.find_or_create_by_code_1c(group.css("Ид").text)
+            new_taxon.update_attributes(:name => group.css("Наименование").text, :parent_id => taxon.id)
+            parse_groups_from_import_xml(group.css("Группы Группа"), new_taxon)
+        end
+    end
+
+    def parse_products_offers_xml(products)
         products.each do |xml_product|
             product = Product.find_by_code_1c(xml_product.css("Ид").text.split('#').first)
 
