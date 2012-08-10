@@ -15,3 +15,4 @@ ru:
   import: "Импортировать"
   no_selected_file: "Не выбран файл для загрузки"
   successful_1c_import: "Импорт товаров успешно выполнен"
+  succesful_1c_discharge: "Выгрузка заказа прошла успешно"

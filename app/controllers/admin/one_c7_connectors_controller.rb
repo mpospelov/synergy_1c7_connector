@@ -37,7 +37,46 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
         end
     end
 
+    def discharge
+        @order = Order.find_by_number(params[:id])
+        create_xml_discharge(@order)
+        redirect_to edit_admin_order_path(@order), :notice => t(:succesful_1c_discharge)
+    end
+
     private
+
+    def create_xml_discharge(order)
+        xml_file = Nokogiri::XML(open("spree_1c.xml"))
+
+        builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
+            xml.order {
+                xml.line_items {
+                    order.line_items.each do |line_item|
+                        xml.line_item {
+                            xml.product_name "#{line_item.product.name}"
+                            xml.quantity "#{line_item.quantity}"
+                            xml.price "#{line_item.price}"
+                            xml.code_1c "#{line_item.variant.code_1c}"
+                            xml.properties {
+                                line_item.variant.option_values.each do |value|
+                                    xml.property {
+                                        xml.value_name "#{value.option_type.name}"
+                                        xml.value "#{value.name}"
+                                    }
+                                end
+                            }
+                        }
+                    end
+                }
+                xml.email "#{order.email}"
+                xml.total "#{order.total}"
+                xml.created_at "#{order.created_at}"
+            }
+        end
+        xml_file.root.add_child(builder.doc.root.to_xml << "\n")
+        File.open('spree_1c.xml', 'w') { |f| f.write(xml_file) }
+
+    end
 
     def set_product_price
         Product.all.each do |product|
