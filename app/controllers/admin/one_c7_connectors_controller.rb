@@ -39,6 +39,8 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
 
     def discharge
         @order = Order.find_by_number(params[:id])
+        @order.discharge = true
+        @order.save
         create_xml_discharge(@order)
         redirect_to edit_admin_order_path(@order), :notice => t(:succesful_1c_discharge)
     end
