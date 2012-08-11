@@ -18,14 +18,14 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
             offers_xml = Nokogiri::XML.parse(File.read(path1))
 
             taxonomy = Taxonomy.find_or_create_by_name(xml.css("Классификатор Группы Группа Наименование").first.text)
-            taxonomy.update_attributes(:show_on_homepage => true)
             taxonomy.taxons.first.update_attributes(:name => xml.css("Классификатор Группы Группа Наименование").first.text, :code_1c => xml.css("Классификатор Группы Группа Ид").first.text)
-            parse_groups_from_import_xml(xml.css("Классификатор Группы Группа Группы Группа"), taxonomy.taxons.first)
+            view_taxonomy = Taxonomy.find_or_create_by_name("Каталог")
+            view_taxonomy.update_attributes(:show_on_homepage => true)
+            parse_groups_from_import_xml(xml.css("Классификатор Группы Группа Группы Группа"), taxonomy.root)
             parse_products(xml.css("Товар"))
             parse_products_offers_xml(offers_xml.css("Предложение"))
-
             set_product_price
-
+            create_similar_taxons(view_taxonomy.root, taxonomy.root)
 
             # delete xml file after parsing
             File.delete(path)
@@ -46,6 +46,29 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
     end
 
     private
+
+    def create_similar_taxons(taxon, taxon_copy_from)
+        taxon_copy_from.children.each do |taxon_copy_from_child|
+            name = taxon_copy_from_child.name
+            if name.first.to_i != 0
+                if name.split.second == "PE"
+                   name = name.split[2..10].join(" ")
+                else
+                    name = name.split[1..10].join(" ")
+                end
+            end
+            new_taxon = Taxon.find_or_initialize_by_name_and_parent_id(name, taxon.id)
+            new_taxon.parent_id = taxon.id
+            new_taxon.taxonomy_id = taxon.taxonomy_id
+            taxon_copy_from_child.products.each do |product|
+                if new_taxon.products.where(:id => product.id).blank?
+                    new_taxon.products << product
+                end
+            end
+            new_taxon.save
+            create_similar_taxons(new_taxon, taxon_copy_from_child)
+        end
+    end
 
     def create_xml_discharge(order)
         xml_file = Nokogiri::XML(open("spree_1c.xml"))
