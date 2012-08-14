@@ -167,17 +167,26 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
             if product.new_record?
                 product.name = xml_product.css("Наименование").first.text
                 product.price = 0
+                description = xml_product.css("Описание").first
+                if !description.blank?
+                    product.description = description.text
+                end
                 product.available_on = Time.now
                 xml_product.css("Группы Ид").each do |xml_taxon|
                     product.taxons << Taxon.where(:code_1c => xml_taxon.text)
                 end
                 product.save!
             else
-                product.update_attributes(:name => xml_product.css("Наименование").first.text, :price => 0)
+                product.name = xml_product.css("Наименование").first.text
+                description = xml_product.css("Описание").first
+                if !description.blank?
+                    product.description = description.text
+                end
                 # Update taxon only have non-empty code_1c attribute
                 xml_product.css("Группы Ид").each do |xml_taxon|
                     product.taxons << Taxon.where(:code_1c => xml_taxon.text)
                 end
+                product.save
             end
         end
     end
