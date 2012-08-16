@@ -164,6 +164,10 @@ module Synergy1c7Connector
               if product.new_record?
                   product.name = xml_product.css("Наименование").first.text
                   product.price = 0
+                  images = xml_product.css("Картинка")
+                  images.each do |image|
+                      product.images.create(:attachment => File.open("#{Rails.root}/../shared/webdata/" + image, :alt => product.name + '-' + (product.images.size + 1).to_s))
+                  end
                   description = xml_product.css("Описание").first
                   if !description.blank?
                       product.description = description.text
