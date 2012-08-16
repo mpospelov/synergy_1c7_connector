@@ -1,6 +1,7 @@
 #encoding: UTF-8
 require 'spree_core'
 require 'synergy_1c7_connector_hooks'
+require 'debugger'
 
 module Synergy1c7Connector
   class Engine < Rails::Engine
@@ -30,6 +31,7 @@ module Synergy1c7Connector
           view_taxonomy = Taxonomy.find_or_create_by_name("Каталог")
           view_taxonomy.update_attributes(:show_on_homepage => true)
           parse_groups_from_import_xml(xml.css("Классификатор Группы Группа Группы Группа"), taxonomy.root)
+          create_properties(xml.css("Свойства Свойство"))
           parse_products(xml.css("Товар"))
           parse_products_offers_xml(offers_xml.css("Предложение"))
           set_product_price
@@ -43,6 +45,15 @@ module Synergy1c7Connector
       end
 
       private
+
+      def create_properties(xml_properties)
+          xml_properties.each do |xml_property|
+              property = Property.find_or_initialize_by_code_1c(xml_property.css("Ид").first.text)
+              property.name = xml_property.css("Наименование").first.text
+              property.presentation = property.name
+              property.save
+          end
+      end
 
       def create_similar_taxons(taxon, taxon_copy_from)
           taxon_copy_from.children.each do |taxon_copy_from_child|
@@ -163,10 +174,18 @@ module Synergy1c7Connector
               product = Product.find_or_initialize_by_code_1c(xml_product.css("Ид").first.text)
               if product.new_record?
                   product.name = xml_product.css("Наименование").first.text
+                  product.sku = xml_product.css("Артикул").first.text
+                  xml_product.css("ЗначенияСвойства").each do |xml_property|
+                      property = product.product_properties.find_or_initialize_by_product_id_and_property_id(product.id, Property.find_by_code_1c(xml_property.css("Ид").text).id)
+                      value = xml_property.css("Значение").text
+                      property.value = value if not value.blank?
+                      property.save
+                  end
                   product.price = 0
                   images = xml_product.css("Картинка")
                   images.each do |image|
-                      product.images.create(:attachment => File.open("#{Rails.root}/../shared/webdata/" + image, :alt => product.name + '-' + (product.images.size + 1).to_s))
+                      new_image = product.images.find_or_initialize_by_attachment_file_name(image.text.split('/').last, :attachment => File.open("#{Rails.root}/../shared/webdata/" + image.text))
+                      new_image.save
                   end
                   description = xml_product.css("Описание").first
                   if !description.blank?
@@ -178,6 +197,20 @@ module Synergy1c7Connector
                   end
                   product.save!
               else
+                  product.name = xml_product.css("Наименование").first.text
+                  product.sku = xml_product.css("Артикул").first.text
+                  xml_product.css("ЗначенияСвойства").each do |xml_property|
+                      property = product.product_properties.find_or_initialize_by_product_id_and_property_id(product.id, Property.find_by_code_1c(xml_property.css("Ид").text).id)
+                      value = xml_property.css("Значение").text
+                      property.value = value
+                      property.save if not value.blank?
+                  end
+                  images = xml_product.css("Картинка")
+                  images.each do |image|
+                      new_image = product.images.find_or_initialize_by_attachment_file_name(image.text.split('/').last, :attachment => File.open("#{Rails.root}/../shared/webdata/" + image.text))
+                      new_image.save
+                  end
+
                   product.name = xml_product.css("Наименование").first.text
                   description = xml_product.css("Описание").first
                   if !description.blank?
