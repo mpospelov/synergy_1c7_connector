@@ -17,10 +17,10 @@ module Synergy1c7Connector
   end
 
   class Connection
-      def parse_xml
+      def parse_xml(shared_path)
           # If file present
-          import_path = "#{Rails.root}/../shared/webdata/import.xml"
-          offers_path = "#{Rails.root}/../shared/webdata/offers.xml"
+          import_path = shared_path + "/webdata/import.xml"
+          offers_path = shared_path + "/webdata/offers.xml"
           xml = Nokogiri::XML.parse(File.read(import_path))
           offers_xml = Nokogiri::XML.parse(File.read(offers_path))
 
@@ -37,10 +37,10 @@ module Synergy1c7Connector
           create_similar_taxons(view_taxonomy.root, taxonomy.root)
       end
 
-      def discharge(order)
+      def discharge(order, shared_path)
           order.discharge = true
           order.save
-          create_xml_discharge(order)
+          create_xml_discharge(order, shared_path)
       end
 
       private
@@ -77,8 +77,8 @@ module Synergy1c7Connector
           end
       end
 
-      def create_xml_discharge(order)
-          xml_file = Nokogiri::XML(open("#{Rails.root}/../shared/spree_discharge/spree_1c.xml"))
+      def create_xml_discharge(order, shared_path)
+          xml_file = Nokogiri::XML(open(shared_path + "/spree_discharge/spree_1c.xml"))
 
           builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
               xml.order {
@@ -106,7 +106,7 @@ module Synergy1c7Connector
               }
           end
           xml_file.root.add_child(builder.doc.root.to_xml << "\n")
-          File.open("#{Rails.root}/../shared/spree_discharge/spree_1c.xml", 'w') { |f| f.write(xml_file) }
+          File.open(shared_path + "/shared/spree_discharge/spree_1c.xml", 'w') { |f| f.write(xml_file) }
 
       end
 
