@@ -96,7 +96,7 @@ module Synergy1c7Connector
               }
           end
           xml_file.root.add_child(builder.doc.root.to_xml << "\n")
-          File.open('spree_1c.xml', 'w') { |f| f.write(xml_file) }
+          File.open("#{Rails.root}/../shared/spree_discharge/spree_1c.xml", 'w') { |f| f.write(xml_file) }
 
       end
 
