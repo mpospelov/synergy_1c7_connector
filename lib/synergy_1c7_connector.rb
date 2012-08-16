@@ -68,7 +68,7 @@ module Synergy1c7Connector
       end
 
       def create_xml_discharge(order)
-          xml_file = Nokogiri::XML(open("spree_1c.xml"))
+          xml_file = Nokogiri::XML(open("#{Rails.root}/../shared/spree_discharge/spree_1c.xml"))
 
           builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
               xml.order {
