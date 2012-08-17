@@ -17,10 +17,10 @@ module Synergy1c7Connector
   end
 
   class Connection
-      def parse_xml(shared_path)
+      def parse_xml
           # If file present
-          import_path = shared_path + "/webdata/import.xml"
-          offers_path = shared_path + "/webdata/offers.xml"
+          import_path = "#{Rails.root}/../../shared/webdata/import.xml"
+          offers_path = "#{Rails.root}/../../shared/webdata/offers.xml"
           xml = Nokogiri::XML.parse(File.read(import_path))
           offers_xml = Nokogiri::XML.parse(File.read(offers_path))
 
@@ -37,10 +37,10 @@ module Synergy1c7Connector
           create_similar_taxons(view_taxonomy.root, taxonomy.root)
       end
 
-      def discharge(order, shared_path)
+      def discharge(order)
           order.discharge = true
           order.save
-          create_xml_discharge(order, shared_path)
+          create_xml_discharge(order)
       end
 
       private
@@ -77,8 +77,8 @@ module Synergy1c7Connector
           end
       end
 
-      def create_xml_discharge(order, shared_path)
-          xml_file = Nokogiri::XML(open(shared_path + "/spree_discharge/spree_1c.xml"))
+      def create_xml_discharge(order)
+          xml_file = Nokogiri::XML(open("#{Rails.root}/../../shared/spree_discharge/spree_1c.xml"))
 
           builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
               xml.order {
@@ -106,7 +106,7 @@ module Synergy1c7Connector
               }
           end
           xml_file.root.add_child(builder.doc.root.to_xml << "\n")
-          File.open(shared_path + "/shared/spree_discharge/spree_1c.xml", 'w') { |f| f.write(xml_file) }
+          File.open("#{Rails.root}/../../shared/spree_discharge/spree_1c.xml", 'w') { |f| f.write(xml_file) }
 
       end
 
@@ -183,7 +183,7 @@ module Synergy1c7Connector
                   product.price = 0
                   images = xml_product.css("Картинка")
                   images.each do |image|
-                      new_image = product.images.find_or_initialize_by_attachment_file_name(image.text.split('/').last, :attachment => File.open("#{Rails.root}/../shared/webdata/" + image.text))
+                      new_image = product.images.find_or_initialize_by_attachment_file_name(image.text.split('/').last, :attachment => File.open("#{Rails.root}/../../shared/webdata/" + image.text))
                       new_image.save
                   end
                   description = xml_product.css("Описание").first
@@ -206,7 +206,7 @@ module Synergy1c7Connector
                   end
                   images = xml_product.css("Картинка")
                   images.each do |image|
-                      new_image = product.images.find_or_initialize_by_attachment_file_name(image.text.split('/').last, :attachment => File.open("#{Rails.root}/../shared/webdata/" + image.text))
+                      new_image = product.images.find_or_initialize_by_attachment_file_name(image.text.split('/').last, :attachment => File.open("#{Rails.root}/../../shared/webdata/" + image.text))
                       new_image.save
                   end
 
