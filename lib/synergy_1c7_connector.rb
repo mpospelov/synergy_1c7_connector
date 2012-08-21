@@ -30,8 +30,8 @@ module Synergy1c7Connector
           view_taxonomy = Taxonomy.find_or_create_by_name("Каталог")
           view_taxonomy.update_attributes(:show_on_homepage => true)
           parse_groups_from_import_xml(xml.css("Классификатор Группы Группа Группы Группа"), taxonomy.root)
-          create_properties(xml.css("Справочник"))
-          parse_products(xml.css("Товар"), get_property_values(xml.css("Свойства Свойство")))
+          create_properties(xml.css("Свойства Свойство"))
+          parse_products(xml.css("Товар"), get_property_values(xml.css("Справочник")))
           parse_products_offers_xml(offers_xml.css("Предложение"))
           set_product_price
           create_similar_taxons(view_taxonomy.root, taxonomy.root)
@@ -45,10 +45,10 @@ module Synergy1c7Connector
 
       private
 
-      def get_propert_values(xml_values)
-          property_values = Array.new
+      def get_property_values(xml_values)
+          property_values = Hash.new
           xml_values.each do |xml_value|
-              property_values << ["#{xml_value.css('ИдЗначения').text}", "#{xml_value.css('Значение').text}"]
+              property_values["#{xml_value.css('ИдЗначения').text}"] = "#{xml_value.css('Значение').text}"
           end
           return property_values
       end
@@ -187,7 +187,7 @@ module Synergy1c7Connector
                       value = xml_property.css("Значение").text
                       property.value = value if not value.blank?
                       if property.value.length == 36
-                          propety.value = property_values.value_at(property.value).first
+                          property.value = property_values.values_at(property.value).first
                       end
                       property.save
                   end
@@ -214,7 +214,7 @@ module Synergy1c7Connector
                       value = xml_property.css("Значение").text
                       property.value = value
                       if property.value.length == 36
-                          propety.value = property_values.value_at(property.value).first
+                          property.value = property_values.values_at(property.value).first
                       end
                       property.save if not value.blank?
                   end
@@ -224,7 +224,6 @@ module Synergy1c7Connector
                       new_image.save
                   end
 
-                  product.name = xml_product.css("Наименование").first.text
                   description = xml_product.css("Описание").first
                   if !description.blank?
                       product.description = description.text
