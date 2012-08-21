@@ -30,8 +30,8 @@ module Synergy1c7Connector
           view_taxonomy = Taxonomy.find_or_create_by_name("Каталог")
           view_taxonomy.update_attributes(:show_on_homepage => true)
           parse_groups_from_import_xml(xml.css("Классификатор Группы Группа Группы Группа"), taxonomy.root)
-          create_properties(xml.css("Свойства Свойство"))
-          parse_products(xml.css("Товар"))
+          create_properties(xml.css("Справочник"))
+          parse_products(xml.css("Товар"), get_property_values(xml.css("Свойства Свойство")))
           parse_products_offers_xml(offers_xml.css("Предложение"))
           set_product_price
           create_similar_taxons(view_taxonomy.root, taxonomy.root)
@@ -44,6 +44,14 @@ module Synergy1c7Connector
       end
 
       private
+
+      def get_propert_values(xml_values)
+          property_values = Array.new
+          xml_values.each do |xml_value|
+              property_values << ["#{xml_value.css('ИдЗначения').text}", "#{xml_value.css('Значение').text}"]
+          end
+          return property_values
+      end
 
       def create_properties(xml_properties)
           xml_properties.each do |xml_property|
@@ -168,16 +176,19 @@ module Synergy1c7Connector
           end
       end
 
-      def parse_products(products)
+      def parse_products(products, property_values)
           products.each do |xml_product|
               product = Product.find_or_initialize_by_code_1c(xml_product.css("Ид").first.text)
               if product.new_record?
-                  product.name = xml_product.css("Наименование").first.text
                   product.sku = xml_product.css("Артикул").first.text
+                  product.name = product.sku + " " + xml_product.css("Наименование").first.text
                   xml_product.css("ЗначенияСвойства").each do |xml_property|
                       property = product.product_properties.find_or_initialize_by_product_id_and_property_id(product.id, Property.find_by_code_1c(xml_property.css("Ид").text).id)
                       value = xml_property.css("Значение").text
                       property.value = value if not value.blank?
+                      if property.value.length == 36
+                          propety.value = property_values.value_at(property.value).first
+                      end
                       property.save
                   end
                   product.price = 0
@@ -196,12 +207,15 @@ module Synergy1c7Connector
                   end
                   product.save!
               else
-                  product.name = xml_product.css("Наименование").first.text
                   product.sku = xml_product.css("Артикул").first.text
+                  product.name = product.sku + " " + xml_product.css("Наименование").first.text
                   xml_product.css("ЗначенияСвойства").each do |xml_property|
                       property = product.product_properties.find_or_initialize_by_product_id_and_property_id(product.id, Property.find_by_code_1c(xml_property.css("Ид").text).id)
                       value = xml_property.css("Значение").text
                       property.value = value
+                      if property.value.length == 36
+                          propety.value = property_values.value_at(property.value).first
+                      end
                       property.save if not value.blank?
                   end
                   images = xml_product.css("Картинка")
