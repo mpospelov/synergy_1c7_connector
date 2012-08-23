@@ -47,11 +47,7 @@ module Synergy1c7Connector
           create_xml_discharge(order)
       end
 
-      private
-
-      def xml
-          @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?>"
-      end
+      protected
 
       def tag(tag, attrs={}, &block)
           @xml_string << "<#{tag}"
@@ -68,6 +64,14 @@ module Synergy1c7Connector
           @xml_string << text.to_s.gsub(/[&"'<>]/) {|match| REPLACEMENTS[match]} if text
           @xml_string << "</#{tag}>"
       end
+
+
+      private
+
+      def xml
+          @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?>"
+      end
+
 
       def get_property_values(xml_values)
           property_values = Hash.new
