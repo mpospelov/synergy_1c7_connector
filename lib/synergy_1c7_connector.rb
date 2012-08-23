@@ -43,14 +43,13 @@ module Synergy1c7Connector
       def discharge(order)
           order.discharge = true
           order.save
+          xml
           create_xml_discharge(order)
       end
 
+
       private
 
-      def xml
-          @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?>"
-      end
 
       def tag(tag, attrs={}, &block)
           @xml_string << "<#{tag}"
@@ -109,7 +108,6 @@ module Synergy1c7Connector
       end
 
       def create_xml_discharge(order)
-             xml
              tag "КоммерческаяИнформация", { "ВерсияСхемы" => "2.03", "ДатаФормирования" => Time.now.to_s.split(" ").first.tr(".","-") } do
                tag "Документ" do
                  tag "Номер", :text => order.id
