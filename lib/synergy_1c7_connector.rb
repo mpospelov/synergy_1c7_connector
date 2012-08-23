@@ -17,6 +17,9 @@ module Synergy1c7Connector
   end
 
   class Connection
+      def initialize
+        @xml_string = ""
+      end
       def parse_xml
           # If file present
           import_path = "#{Rails.root}/../../shared/webdata/import.xml"
