@@ -125,7 +125,7 @@ module Synergy1c7Connector
                     tag "Сумма", :text => order.total
                     tag "Контрагенты" do
                         tag "Контрагент" do
-                            tag "Наименование", :text => order.user.full_name
+                            tag "Наименование", :text =>  order.ship_address.lastname + order.ship_address.firstname + order.ship_address.secondname
                             tag "Роль", :text => "Покупатель"
                             tag "ПолноеНаименование", :text => order.ship_address.lastname + order.ship_address.firstname + order.ship_address.secondname
                             tag "Фамилия", :text => order.ship_address.lastname
