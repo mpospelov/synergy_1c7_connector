@@ -45,6 +45,26 @@ module Synergy1c7Connector
 
       private
 
+      def xml
+          @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?>"
+      end
+
+      def tag(tag, attrs={}, &block)
+          @xml_string << "<#{tag}"
+          text = attrs.delete(:text)
+          @xml_string << " " if not attrs.empty?
+          attrs.each_pair do |key, value|
+              @xml_string << "#{key.to_s}=\"#{value.to_s}\""
+              @xml_string << " " if key != attrs.keys.last
+          end
+          @xml_string << ">"
+          if block_given?
+              block.arity < 1 ? self.instance_eval(&block) : block.call(self)
+          end
+          @xml_string << text.to_s.gsub(/[&"'<>]/) {|match| REPLACEMENTS[match]} if text
+          @xml_string << "</#{tag}>"
+      end
+
       def get_property_values(xml_values)
           property_values = Hash.new
           xml_values.each do |xml_value|
@@ -86,35 +106,68 @@ module Synergy1c7Connector
       end
 
       def create_xml_discharge(order)
-          xml_file = Nokogiri::XML(open("#{Rails.root}/../../shared/spree_discharge/spree_1c.xml"))
+             xml
+             tag "КоммерческаяИнформация", { "ВерсияСхемы" => "2.03", "ДатаФормирования" => Time.now.to_s.split(" ").first.tr(".","-") } do
+               tag "Документ" do
+                 tag "Номер", :text => order.id
+                 tag "Дата", :text => order.created_at
+                 tag "ХозОперация", :text => "Заказ товара"
+                 tag "Роль", :text => "Администратор"
+                 tag "Валюта", :text => "руб"
+                 tag "Курс", :text => "1"
+                 tag "Сумма", :text => order.total
+                 tag "Контрагенты" do
+                   tag "Контрагент" do
+                       tag "Наименование", :text => order.user.full_name
+                       tag "Роль", :text => "Покупатель"
+                       tag "ПолноеНаименование", :text => order.ship_address.lastname + order.ship_address.firstname + order.ship_address.secondname
+                       tag "Фамилия", :text => order.ship_address.lastname
+                       tag "Имя", :text => order.ship_address.firstname
+                       tag "АдресРегистрации" do
+                         tag "Представление", :text => order.ship_address.address1
+                         tag "АдресноеПоле" do
+                           tag "Тип", :text => "Почтовый индекс"
+                           tag "Значение", :text => order.ship_address.zipcode
+                         end
+                       end
+                     end
+                   end
+                 tag "Время", :text => order.created_at.hour.to_s + ":" + order.created_at.min.to_s + ":" + order.created_at.sec.to_s
+                 tag "Товары" do
+                   order.line_items.each do |line_item|
+                     tag "Товар" do
+                       tag "Ид", :text => line_item.product.code_1c
+                       tag "Группы", :text => line_item.product.taxons.last.code_1c
+                       tag "Наименование", :text => line_item.product.name
+                       tag "БазоваяЕдиница", {"Код" => "796", "НаименованиеПолное" => "Штука", "МеждународноеСокращение" => "PCE", :text => "шт" }
+                       tag "ЦенаЗаЕдиницу", :text => line_item.product.price
+                       tag "Количество", :text => line_item.quantity
+                       tag "Сумма", :text => (line_item.quantity.to_f * line_item.product.price.to_f).to_s
+                       tag "ЗначенияРеквизитов" do
+                         tag "ЗначениеРеквизита" do
+                           tag "Наименование", :text => "ВидНоменклатуры"
+                           tag "Значение", :text => "Бельё и колготки"
+                         end
+                         tag "ЗначениеРеквизита" do
+                           tag "Наименование", :text => "ТипНоменклатуры"
+                           tag "Значение", :text => "Товар"
+                         end
+                       end
+                       tag "ХарактеристикиТовара" do
+                         line_item.variant.option_values.each do |value|
+                           tag "ХарактеристикаТовара" do
+                             tag "Наименование", :text => value.option_type.name
+                             tag "Значение", :text => value.name
+                           end
+                         end
+                       end
+                     end
+                   end
+                 end
+               end
+             end
 
-          builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
-              xml.order {
-                  xml.line_items {
-                      order.line_items.each do |line_item|
-                          xml.line_item {
-                              xml.product_name "#{line_item.product.name}"
-                              xml.quantity "#{line_item.quantity}"
-                              xml.price "#{line_item.price}"
-                              xml.code_1c "#{line_item.variant.code_1c}"
-                              xml.properties {
-                                  line_item.variant.option_values.each do |value|
-                                      xml.property {
-                                          xml.value_name "#{value.option_type.name}"
-                                          xml.value "#{value.name}"
-                                      }
-                                  end
-                              }
-                          }
-                      end
-                  }
-                  xml.email "#{order.email}"
-                  xml.total "#{order.total}"
-                  xml.created_at "#{order.created_at}"
-              }
-          end
-          xml_file.root.add_child(builder.doc.root.to_xml << "\n")
-          File.open("#{Rails.root}/../../shared/spree_discharge/spree_1c.xml", 'w') { |f| f.write(xml_file) }
+          #File.open("#{Rails.root}/../../shared/spree_discharge/spree_1c.xml", 'w') { |f| f.write(xml_file) }
 
       end
 
