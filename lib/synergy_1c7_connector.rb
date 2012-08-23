@@ -47,7 +47,6 @@ module Synergy1c7Connector
             create_xml_discharge(order)
         end
 
-        protected
 
         def tag(tag, attrs={}, &block)
             @xml_string << "<#{tag}"
