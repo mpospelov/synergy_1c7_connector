@@ -47,9 +47,11 @@ module Synergy1c7Connector
           create_xml_discharge(order)
       end
 
-
       private
 
+      def xml
+          @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?>"
+      end
 
       def tag(tag, attrs={}, &block)
           @xml_string << "<#{tag}"
