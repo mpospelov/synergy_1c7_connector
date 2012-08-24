@@ -1,8 +1,6 @@
 #encoding: UTF-8
 require 'spree_core'
 require 'synergy_1c7_connector_hooks'
-require 'rexml/document'
-include REXML
 
 module Synergy1c7Connector
     class Engine < Rails::Engine
@@ -176,7 +174,6 @@ module Synergy1c7Connector
                 end
             end
             File.open("#{Rails.root}/../../shared/spree_discharge/spree_1c.xml", 'w') { |f| f.write(@xml_string) }
-
         end
 
         def set_product_price
@@ -264,7 +261,7 @@ module Synergy1c7Connector
                     end
                     product.available_on = Time.now
                     xml_product.css("Группы Ид").each do |xml_taxon|
-                        if !product.taxons.where(:code_1c => xml_taxon.text)
+                        if product.taxons.where(:code_1c => xml_taxon.text).blank?
                             product.taxons << Taxon.where(:code_1c => xml_taxon.text)
                         end
                     end
@@ -293,7 +290,7 @@ module Synergy1c7Connector
                     end
                     # Update taxon only have non-empty code_1c attribute
                     xml_product.css("Группы Ид").each do |xml_taxon|
-                        if !product.taxons.where(:code_1c => xml_taxon.text)
+                        if product.taxons.where(:code_1c => xml_taxon.text).blank?
                             product.taxons << Taxon.where(:code_1c => xml_taxon.text)
                         end
                     end
@@ -303,3 +300,4 @@ module Synergy1c7Connector
         end
     end
 end
+
