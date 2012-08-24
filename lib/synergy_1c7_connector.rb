@@ -1,6 +1,8 @@
 #encoding: UTF-8
 require 'spree_core'
 require 'synergy_1c7_connector_hooks'
+require 'rexml/document'
+include REXML
 
 module Synergy1c7Connector
     class Engine < Rails::Engine
@@ -173,8 +175,7 @@ module Synergy1c7Connector
                     end
                 end
             end
-
-            #File.open("#{Rails.root}/../../shared/spree_discharge/spree_1c.xml", 'w') { |f| f.write(xml_file) }
+            File.open("#{Rails.root}/../../shared/spree_discharge/spree_1c.xml", 'w') { |f| f.write(@xml_string) }
 
         end
 
@@ -296,6 +297,5 @@ module Synergy1c7Connector
                 end
             end
         end
-
     end
 end
