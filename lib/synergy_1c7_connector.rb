@@ -117,7 +117,7 @@ module Synergy1c7Connector
             tag "КоммерческаяИнформация", { "ВерсияСхемы" => "2.03", "ДатаФормирования" => Time.now.to_s.split(" ").first.tr(".","-") } do
                 tag "Документ" do
                     tag "Номер", :text => order.id
-                    tag "Дата", :text => order.created_at
+                    tag "Дата", :text => order.created_at.to_s.split(" ").first.tr(".","-")
                     tag "ХозОперация", :text => "Заказ товара"
                     tag "Роль", :text => "Администратор"
                     tag "Валюта", :text => "руб"
@@ -144,7 +144,7 @@ module Synergy1c7Connector
                         order.line_items.each do |line_item|
                             tag "Товар" do
                                 tag "Ид", :text => line_item.product.code_1c
-                                tag "Группы", :text => line_item.product.taxons.last.code_1c
+                                tag "Группы", :text => line_item.product.taxons.where("taxons.code_1c is not NULL")
                                 tag "Наименование", :text => line_item.product.name
                                 tag "БазоваяЕдиница", {"Код" => "796", "НаименованиеПолное" => "Штука", "МеждународноеСокращение" => "PCE", :text => "шт" }
                                 tag "ЦенаЗаЕдиницу", :text => line_item.product.price
