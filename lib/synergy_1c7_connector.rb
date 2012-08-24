@@ -125,9 +125,9 @@ module Synergy1c7Connector
                     tag "Сумма", :text => order.total
                     tag "Контрагенты" do
                         tag "Контрагент" do
-                            tag "Наименование", :text =>  order.ship_address.lastname + order.ship_address.firstname + order.ship_address.secondname
+                            tag "Наименование", :text =>  order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
                             tag "Роль", :text => "Покупатель"
-                            tag "ПолноеНаименование", :text => order.ship_address.lastname + order.ship_address.firstname + order.ship_address.secondname
+                            tag "ПолноеНаименование", :text => order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
                             tag "Фамилия", :text => order.ship_address.lastname
                             tag "Имя", :text => order.ship_address.firstname
                             tag "АдресРегистрации" do
@@ -147,9 +147,9 @@ module Synergy1c7Connector
                                 tag "Группы", :text => line_item.product.taxons.where("taxons.code_1c is not NULL").first.code_1c
                                 tag "Наименование", :text => line_item.product.name
                                 tag "БазоваяЕдиница", {"Код" => "796", "НаименованиеПолное" => "Штука", "МеждународноеСокращение" => "PCE", :text => "шт" }
-                                tag "ЦенаЗаЕдиницу", :text => line_item.product.price
+                                tag "ЦенаЗаЕдиницу", :text => line_item.price
                                 tag "Количество", :text => line_item.quantity
-                                tag "Сумма", :text => (line_item.quantity.to_f * line_item.product.price.to_f).to_s
+                                tag "Сумма", :text => (line_item.quantity.to_f * line_item.price.to_f).to_s
                                 tag "ЗначенияРеквизитов" do
                                     tag "ЗначениеРеквизита" do
                                         tag "Наименование", :text => "ВидНоменклатуры"
