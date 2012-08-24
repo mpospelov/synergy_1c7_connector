@@ -293,7 +293,9 @@ module Synergy1c7Connector
                     end
                     # Update taxon only have non-empty code_1c attribute
                     xml_product.css("Группы Ид").each do |xml_taxon|
-                        product.taxons << Taxon.where(:code_1c => xml_taxon.text)
+                        if !product.taxons.where(:code_1c => xml_taxon.text)
+                            product.taxons << Taxon.where(:code_1c => xml_taxon.text)
+                        end
                     end
                     product.save
                 end
