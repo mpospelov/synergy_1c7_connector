@@ -264,7 +264,9 @@ module Synergy1c7Connector
                     end
                     product.available_on = Time.now
                     xml_product.css("Группы Ид").each do |xml_taxon|
-                        product.taxons << Taxon.where(:code_1c => xml_taxon.text)
+                        if !product.taxons.where(:code_1c => xml_taxon.text)
+                            product.taxons << Taxon.where(:code_1c => xml_taxon.text)
+                        end
                     end
                     product.save!
                 else
