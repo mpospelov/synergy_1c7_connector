@@ -206,31 +206,33 @@ module Synergy1c7Connector
         def parse_products_offers_xml(products)
             products.each do |xml_product|
                 product = Product.find_by_code_1c(xml_product.css("Ид").text.split('#').first)
+                if !product.blank?
 
-                variant = Variant.find_or_initialize_by_code_1c(xml_product.css("Ид").text)
-                variant.product_id = product.id
-                prices = Array.new
-                prices << xml_product.css("ЦенаЗаЕдиницу").first.text.to_i
-                prices << xml_product.css("ЦенаЗаЕдиницу").last.text.to_i
-                prices.sort!
-                variant.cost_price = prices.first
-                variant.price = prices.last
-                variant.count_on_hand = xml_product.css("Количество").text if not xml_product.css("Количество").text.blank?
-                if variant.new_record?
-                    xml_product.css("ХарактеристикаТовара").each do |option|
-                        if ProductOptionType.where(:product_id => product.id, :option_type_id => OptionType.find_by_name(option.css("Наименование").text).id).blank?
-                            product_option_type = ProductOptionType.new(:product => product, :option_type => OptionType.find_by_name(option.css("Наименование").text))
-                            product_option_type.save
+                    variant = Variant.find_or_initialize_by_code_1c(xml_product.css("Ид").text)
+                    variant.product_id = product.id
+                    prices = Array.new
+                    prices << xml_product.css("ЦенаЗаЕдиницу").first.text.to_i
+                    prices << xml_product.css("ЦенаЗаЕдиницу").last.text.to_i
+                    prices.sort!
+                    variant.cost_price = prices.first
+                    variant.price = prices.last
+                    variant.count_on_hand = xml_product.css("Количество").text if not xml_product.css("Количество").text.blank?
+                    if variant.new_record?
+                        xml_product.css("ХарактеристикаТовара").each do |option|
+                            if ProductOptionType.where(:product_id => product.id, :option_type_id => OptionType.find_by_name(option.css("Наименование").text).id).blank?
+                                product_option_type = ProductOptionType.new(:product => product, :option_type => OptionType.find_by_name(option.css("Наименование").text))
+                                product_option_type.save
+                            end
+                            if OptionValue.find_by_name_and_option_type_id(option.css("Значение").text, OptionType.find_by_name(option.css("Наименование").text).id)
+                                option_value = OptionValue.find_by_name_and_option_type_id(option.css("Значение").text, OptionType.find_by_name(option.css("Наименование").text).id)
+                            else
+                                option_value = OptionValue.create(:option_type_id => OptionType.find_by_name(option.css("Наименование").text).id, :name => option.css("Значение").text,:presentation => option.css("Значение").text)
+                            end
+                            variant.option_values << option_value
                         end
-                        if OptionValue.find_by_name_and_option_type_id(option.css("Значение").text, OptionType.find_by_name(option.css("Наименование").text).id)
-                            option_value = OptionValue.find_by_name_and_option_type_id(option.css("Значение").text, OptionType.find_by_name(option.css("Наименование").text).id)
-                        else
-                            option_value = OptionValue.create(:option_type_id => OptionType.find_by_name(option.css("Наименование").text).id, :name => option.css("Значение").text,:presentation => option.css("Значение").text)
-                        end
-                        variant.option_values << option_value
                     end
+                    variant.save
                 end
-                variant.save
             end
         end
 
