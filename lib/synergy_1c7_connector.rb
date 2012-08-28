@@ -22,8 +22,8 @@ module Synergy1c7Connector
         end
         def parse_xml
             # If file present
-            import_path = "#{Rails.root}/../../shared/webdata/import.xml"
-            offers_path = "#{Rails.root}/../../shared/webdata/offers.xml"
+            import_path = "#{Rails.root}/webdata/import.xml"
+            offers_path = "#{Rails.root}/webdata/offers.xml"
             xml = Nokogiri::XML.parse(File.read(import_path))
             offers_xml = Nokogiri::XML.parse(File.read(offers_path))
 
@@ -173,7 +173,7 @@ module Synergy1c7Connector
                     end
                 end
             end
-            File.open("#{Rails.root}/../../shared/spree_discharge/spree_1c.xml", 'w') { |f| f.write(@xml_string) }
+            File.open("#{Rails.root}/spree_discharge/spree_1c.xml", 'w') { |f| f.write(@xml_string) }
         end
 
         def set_product_price
@@ -252,7 +252,7 @@ module Synergy1c7Connector
                     product.price = 0
                     images = xml_product.css("Картинка")
                     images.each do |image|
-                        new_image = product.images.find_or_initialize_by_attachment_file_name(image.text.split('/').last, :attachment => File.open("#{Rails.root}/../../shared/webdata/" + image.text))
+                        new_image = product.images.find_or_initialize_by_attachment_file_name(image.text.split('/').last, :attachment => File.open("#{Rails.root}/webdata/" + image.text))
                         new_image.save
                     end
                     description = xml_product.css("Описание").first
@@ -280,7 +280,7 @@ module Synergy1c7Connector
                     end
                     images = xml_product.css("Картинка")
                     images.each do |image|
-                        new_image = product.images.find_or_initialize_by_attachment_file_name(image.text.split('/').last, :attachment => File.open("#{Rails.root}/../../shared/webdata/" + image.text))
+                        new_image = product.images.find_or_initialize_by_attachment_file_name(image.text.split('/').last, :attachment => File.open("#{Rails.root}/webdata/" + image.text))
                         new_image.save
                     end
 
