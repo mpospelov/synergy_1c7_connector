@@ -269,6 +269,8 @@ module Synergy1c7Connector
                         puts filename
                         puts image
                         new_image = product.images.find_or_initialize_by_attachment_file_name(filename, :attachment => image)
+                        puts new_image.save
+                        puts new_image.errors
                         new_image.save
                     end
                     description = xml_product.css("Описание").first
