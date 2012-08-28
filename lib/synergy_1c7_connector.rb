@@ -236,8 +236,9 @@ module Synergy1c7Connector
 
         def parse_products(products, property_values)
             products.each do |xml_product|
+                product_if = Product.where(:code_1c => xml_product.css("Ид").first.text)
                 product = Product.find_or_initialize_by_code_1c(xml_product.css("Ид").first.text)
-                if product.new_record?
+                if product_if.blank?
                     product.sku = xml_product.css("Артикул").first.text
                     product.name = product.sku + " " + xml_product.css("Наименование").first.text
                     xml_product.css("ЗначенияСвойства").each do |xml_property|
