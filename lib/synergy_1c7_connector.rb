@@ -245,8 +245,10 @@ module Synergy1c7Connector
                         property = product.product_properties.find_or_initialize_by_product_id_and_property_id(product.id, Property.find_by_code_1c(xml_property.css("Ид").text).id)
                         value = xml_property.css("Значение").text
                         property.value = value if not value.blank?
-                        if property.value.length == 36
-                            property.value = property_values.values_at(property.value).first
+                        if not value.blank?
+                            if property.value.length == 36
+                                property.value = property_values.values_at(property.value).first
+                            end
                         end
                         property.save
                     end
@@ -274,8 +276,10 @@ module Synergy1c7Connector
                         property = product.product_properties.find_or_initialize_by_product_id_and_property_id(product.id, Property.find_by_code_1c(xml_property.css("Ид").text).id)
                         value = xml_property.css("Значение").text
                         property.value = value
-                        if property.value.length == 36
-                            property.value = property_values.values_at(property.value).first
+                        if not value.blank?
+                            if property.value.length == 36
+                                property.value = property_values.values_at(property.value).first
+                            end
                         end
                         property.save if not value.blank?
                     end
