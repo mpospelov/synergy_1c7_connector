@@ -21,6 +21,7 @@ module Synergy1c7Connector
             @xml_string = ""
         end
         def parse_xml
+            puts 'Start parse xml!'
             # If file present
             import_path = "#{Rails.root}/webdata/import.xml"
             offers_path = "#{Rails.root}/webdata/offers.xml"
@@ -32,9 +33,13 @@ module Synergy1c7Connector
             taxonomy.taxons.first.update_attributes(:name => xml.css("Классификатор Группы Группа Наименование").first.text, :code_1c => xml.css("Классификатор Группы Группа Ид").first.text)
             view_taxonomy = Taxonomy.find_or_create_by_name("Каталог")
             view_taxonomy.update_attributes(:show_on_homepage => true)
+            puts 'Start parse taxons'
             parse_groups_from_import_xml(xml.css("Классификатор Группы Группа Группы Группа"), taxonomy.root)
+            puts 'End parse taxons'
             create_properties(xml.css("Свойства Свойство"))
+            puts 'Start parse products!'
             parse_products(xml.css("Товар"), get_property_values(xml.css("Справочник")))
+            puts 'End parse products'
             parse_products_offers_xml(offers_xml.css("Предложение"))
             set_product_price
             create_similar_taxons(view_taxonomy.root, taxonomy.root)
@@ -243,6 +248,7 @@ module Synergy1c7Connector
                 if product_if.blank? && !xml_product.css("Артикул").first.blank?
                     product.sku = xml_product.css("Артикул").first.text
                     product.name = product.sku + " " + xml_product.css("Наименование").first.text
+                    puts "Parse product #{product.name}"
                     xml_product.css("ЗначенияСвойства").each do |xml_property|
                         property = product.product_properties.find_or_initialize_by_product_id_and_property_id(product.id, Property.find_by_code_1c(xml_property.css("Ид").text).id)
                         value = xml_property.css("Значение").text
