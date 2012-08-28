@@ -294,7 +294,11 @@ module Synergy1c7Connector
                     images = xml_product.css("Картинка")
                     images.each do |image|
                         puts "Parse image in path #{image.text}"
-                        new_image = product.images.find_or_initialize_by_attachment_file_name(image.text.split('/').last, :attachment => File.open("#{Rails.root}/webdata/" + image.text))
+                        filename = image.text.split('/').last
+                        image = File.open("#{Rails.root}/webdata/" + image.text)
+                        puts filename
+                        puts image
+                        new_image = product.images.find_or_initialize_by_attachment_file_name(filename, :attachment => image)
                         new_image.save
                     end
 
