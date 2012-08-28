@@ -238,7 +238,7 @@ module Synergy1c7Connector
             products.each do |xml_product|
                 product_if = Product.where(:code_1c => xml_product.css("Ид").first.text)
                 product = Product.find_or_initialize_by_code_1c(xml_product.css("Ид").first.text)
-                if product_if.blank?
+                if product_if.blank? && !xml_product.css("Артикул").first.blank?
                     product.sku = xml_product.css("Артикул").first.text
                     product.name = product.sku + " " + xml_product.css("Наименование").first.text
                     xml_product.css("ЗначенияСвойства").each do |xml_property|
@@ -269,7 +269,7 @@ module Synergy1c7Connector
                         end
                     end
                     product.save!
-                else
+                elsif !xml_product.css("Артикул").first.blank?
                     product.sku = xml_product.css("Артикул").first.text
                     product.name = product.sku + " " + xml_product.css("Наименование").first.text
                     xml_product.css("ЗначенияСвойства").each do |xml_property|
