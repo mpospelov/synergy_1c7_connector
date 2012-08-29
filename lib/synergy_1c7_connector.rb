@@ -17,6 +17,10 @@ module Synergy1c7Connector
     end
 
     class Connection
+        def parse_with_ftp_copy(path)
+            FtpSynch::Get.new.dowload_dir(path)
+            self.parse_xml
+        end
         def initialize
             @xml_string = ""
         end
