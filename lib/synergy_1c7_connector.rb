@@ -32,6 +32,10 @@ module Synergy1c7Connector
             return @@instance
         end
 
+        def xml_string
+            return @xml_string
+        end
+
         def self.reset_xml_var
             @@instance = Connection.new
             @xml_string = "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.03\" ДатаФормирования=\"#{Time.now.to_s.split(" ").first.tr(".","-")} \">"
