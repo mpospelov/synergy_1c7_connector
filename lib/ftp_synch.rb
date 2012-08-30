@@ -12,9 +12,20 @@ module FtpSynch
       puts 'End dowloading'
       ftp.close
     end
-    def upload_from_xml(xml_string)
+
+    def try_upload_from
+        ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
+        ftp.chdir('webdata')
+        if ftp.list('from.xml').empty?
+            upload_from_xml
+        end
+    end
+
+    def upload_from_xml
       ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
       ftp.chdir('webdata')
+      xml_string = Synergy1c7Connector::Connection.instance.xml_string
+      Synergy1c7Connector::Connection.instance.reset_xml_var
       xml_string << "</КоммерческаяИнформация>"
       File.open("from.xml", 'w') { |f| f.write(xml_string) }
       puts 'Start uploading'

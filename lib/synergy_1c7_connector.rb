@@ -133,7 +133,7 @@ module Synergy1c7Connector
 
         def create_xml_discharge(order)
             tag "Документ" do
-                tag "Номер", :text => order.id
+                tag "Номер", :text => order.number
                 tag "Дата", :text => order.created_at.to_s.split(" ").first.tr(".","-")
                 tag "ХозОперация", :text => "Заказ товара"
                 tag "Роль", :text => "Администратор"
