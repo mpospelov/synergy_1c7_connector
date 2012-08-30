@@ -52,7 +52,7 @@ module Synergy1c7Connector
         def discharge(order)
             order.discharge = true
             order.save
-            xml
+            xml if File.read('from.xml').blank?
             create_xml_discharge(order)
         end
 
