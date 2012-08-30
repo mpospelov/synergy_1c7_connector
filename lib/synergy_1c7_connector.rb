@@ -23,8 +23,7 @@ module Synergy1c7Connector
         end
 
         def initialize
-            @xml_string = ""
-            xml
+            @xml_string = "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.03\" ДатаФормирования=\"#{Time.now.to_s.split(" ").first.tr(".","-")} \">"
         end
 
         @@instance = Connection.new
@@ -35,8 +34,7 @@ module Synergy1c7Connector
 
         def self.reset_xml_var
             @@instance = Connection.new
-            @xml_string = ""
-            xml
+            @xml_string = "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.03\" ДатаФормирования=\"#{Time.now.to_s.split(" ").first.tr(".","-")} \">"
         end
 
         private_class_method :new
@@ -92,10 +90,6 @@ module Synergy1c7Connector
 
 
         private
-
-        def xml
-            @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.03\" ДатаФормирования=\"#{Time.now.to_s.split(" ").first.tr(".","-")} \">"
-        end
 
         def get_property_values(xml_values)
             property_values = Hash.new
