@@ -182,7 +182,7 @@ module Synergy1c7Connector
                     end
                 end
             end
-            File.open("#{Rails.root}/spree_discharge/spree_1c.xml", 'w') { |f| f.write(@xml_string) }
+            File.open("#{Rails.root}/from.xml", 'w') { |f| f.write(@xml_string) }
         end
 
         def set_product_price
