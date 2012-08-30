@@ -17,7 +17,10 @@ module FtpSynch
         ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
         ftp.chdir('webdata')
         if ftp.list('from.xml').empty?
+            puts "Start uploading!"
             upload_from_xml
+        else
+            puts "File exist"
         end
     end
 
@@ -27,8 +30,8 @@ module FtpSynch
       xml_string = Synergy1c7Connector::Connection.instance.xml_string
       Synergy1c7Connector::Connection.instance.reset_xml_var
       xml_string << "</КоммерческаяИнформация>"
+      puts xml_string
       File.open("from.xml", 'w') { |f| f.write(xml_string) }
-      puts 'Start uploading'
       ftp.put('from.xml', File.basename('from.xml'))
       puts 'Finish!!!'
     end
