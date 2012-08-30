@@ -13,7 +13,7 @@ module FtpSynch
       ftp.close
     end
 
-    def try_upload_from
+    def self.try_upload_from
         ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
         ftp.chdir('webdata')
         if ftp.list('from.xml').empty?
@@ -24,7 +24,7 @@ module FtpSynch
         end
     end
 
-    def upload_from_xml
+    def self.upload_from_xml
       ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
       ftp.chdir('webdata')
       xml_string = Synergy1c7Connector::Connection.instance.xml_string
