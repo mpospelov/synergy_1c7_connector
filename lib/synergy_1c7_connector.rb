@@ -21,9 +21,23 @@ module Synergy1c7Connector
             FtpSynch::Get.new.dowload_dir(path)
             self.parse_xml
         end
+
         def initialize
             @xml_string = ""
         end
+
+        @@instance = Connection.new
+
+        def self.instance
+            return @@instance
+        end
+
+        def self.reset_xml_var
+            @xml_string = ""
+        end
+
+        private_class_method :new
+
         def parse_xml
             puts 'Start parse xml!'
             # If file present
