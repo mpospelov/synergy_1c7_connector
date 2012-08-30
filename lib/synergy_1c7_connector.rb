@@ -24,6 +24,7 @@ module Synergy1c7Connector
 
         def initialize
             @xml_string = ""
+            xml
         end
 
         @@instance = Connection.new
@@ -33,7 +34,9 @@ module Synergy1c7Connector
         end
 
         def self.reset_xml_var
+            @@instance = Connection.new
             @xml_string = ""
+            xml
         end
 
         private_class_method :new
@@ -66,7 +69,6 @@ module Synergy1c7Connector
         def discharge(order)
             order.discharge = true
             order.save
-            xml
             create_xml_discharge(order)
         end
 
