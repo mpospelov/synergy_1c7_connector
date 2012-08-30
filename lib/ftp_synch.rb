@@ -18,13 +18,13 @@ module FtpSynch
       def self.upload_from_xml
           ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
           ftp.chdir('webdata')
-          xml_string = Synergy1c7Connector::Connection.instance.xml_string
-          Synergy1c7Connector::Connection.reset_xml_var
+          xml_string = File.read(Rails.root.join('from.xml'))
           xml_string << "</КоммерческаяИнформация>"
           puts xml_string
           File.open("from.xml", 'w') { |f| f.write(xml_string) }
           ftp.put('from.xml', File.basename('from.xml'))
           puts 'Finish!!!'
+          File.open("from.xml", 'w') { |f| f.write("") }
           ftp.close
       end
 
