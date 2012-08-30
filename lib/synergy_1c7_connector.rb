@@ -152,7 +152,7 @@ module Synergy1c7Connector
                     tag "Товары" do
                         order.line_items.each do |line_item|
                             tag "Товар" do
-                                tag "Ид", :text => line_item.product.code_1c
+                                tag "Ид", :text => line_item.variant.code_1c
                                 tag "Группы", :text => line_item.product.taxons.where("taxons.code_1c is not NULL").first.code_1c
                                 tag "Наименование", :text => line_item.product.name
                                 tag "БазоваяЕдиница", {"Код" => "796", "НаименованиеПолное" => "Штука", "МеждународноеСокращение" => "PCE", :text => "шт" }
