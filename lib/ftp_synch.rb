@@ -35,7 +35,9 @@ module FtpSynch
       ftp.put('from.xml', File.basename('from.xml'))
       puts 'Finish!!!'
     end
+
     private
+
     def download_files(dir, ftp, home_dir)
         ftp.chdir(dir)
         dir_files = ftp.list
