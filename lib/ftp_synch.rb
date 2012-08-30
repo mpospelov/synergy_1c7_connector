@@ -19,7 +19,7 @@ module FtpSynch
           ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
           ftp.chdir('webdata')
           xml_string = Synergy1c7Connector::Connection.instance.xml_string
-          Synergy1c7Connector::Connection.instance.reset_xml_var
+          Synergy1c7Connector::Connection.reset_xml_var
           xml_string << "</КоммерческаяИнформация>"
           puts xml_string
           File.open("from.xml", 'w') { |f| f.write(xml_string) }
