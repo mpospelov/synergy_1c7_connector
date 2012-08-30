@@ -2,47 +2,47 @@
 require 'net/ftp'
 module FtpSynch
   class Get
-    def dowload_dir(path)
-      ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
-      ftp.binary = true
-      ftp.passive = true
-      ftp.chdir('webdata')
-      puts 'Start dowloading'
-      download_files(ftp.getdir, ftp, path)
-      puts 'End dowloading'
-      ftp.close
-    end
+      def self.try_upload_from
+          ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
+          ftp.chdir('webdata')
+          if ftp.list('from.xml').empty?
+              ftp.close
+              puts "Start uploading!"
+              upload_from_xml
+          else
+              ftp.close
+              puts "File exist"
+          end
+      end
 
-    def self.try_upload_from
-        ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
-        ftp.chdir('webdata')
-        if ftp.list('from.xml').empty?
-            ftp.close
-            puts "Start uploading!"
-            upload_from_xml
-        else
-            ftp.close
-            puts "File exist"
-        end
-    end
+      def self.upload_from_xml
+          ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
+          ftp.chdir('webdata')
+          xml_string = Synergy1c7Connector::Connection.instance.xml_string
+          Synergy1c7Connector::Connection.instance.reset_xml_var
+          xml_string << "</КоммерческаяИнформация>"
+          puts xml_string
+          File.open("from.xml", 'w') { |f| f.write(xml_string) }
+          ftp.put('from.xml', File.basename('from.xml'))
+          puts 'Finish!!!'
+          ftp.close
+      end
 
-    def self.upload_from_xml
-        ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
-        ftp.chdir('webdata')
-        xml_string = Synergy1c7Connector::Connection.instance.xml_string
-        Synergy1c7Connector::Connection.instance.reset_xml_var
-        xml_string << "</КоммерческаяИнформация>"
-        puts xml_string
-        File.open("from.xml", 'w') { |f| f.write(xml_string) }
-        ftp.put('from.xml', File.basename('from.xml'))
-        puts 'Finish!!!'
-        ftp.close
-    end
+      def dowload_dir(path)
+          ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
+          ftp.binary = true
+          ftp.passive = true
+          ftp.chdir('webdata')
+          puts 'Start dowloading'
+          download_files(ftp.getdir, ftp, path)
+          puts 'End dowloading'
+          ftp.close
+      end
 
-    private
+      private
 
-    def download_files(dir, ftp, home_dir)
-        ftp.chdir(dir)
+      def download_files(dir, ftp, home_dir)
+          ftp.chdir(dir)
         dir_files = ftp.list
         dir_files.each do |name|
             if name.include?("<DIR>")
