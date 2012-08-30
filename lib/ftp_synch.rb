@@ -17,9 +17,11 @@ module FtpSynch
         ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
         ftp.chdir('webdata')
         if ftp.list('from.xml').empty?
+            ftp.close
             puts "Start uploading!"
             upload_from_xml
         else
+            ftp.close
             puts "File exist"
         end
     end
@@ -34,6 +36,7 @@ module FtpSynch
         File.open("from.xml", 'w') { |f| f.write(xml_string) }
         ftp.put('from.xml', File.basename('from.xml'))
         puts 'Finish!!!'
+        ftp.close
     end
 
     private
