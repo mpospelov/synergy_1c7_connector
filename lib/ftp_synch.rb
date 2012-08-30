@@ -5,7 +5,7 @@ module FtpSynch
       def self.try_upload_from
           ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
           ftp.chdir('webdata')
-          if ftp.list('from.xml').empty?
+          if ftp.list('from.xml').empty? && !File.read("from.xml").blank?
               ftp.close
               puts "Start uploading!"
               upload_from_xml

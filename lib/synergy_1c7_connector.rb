@@ -21,27 +21,9 @@ module Synergy1c7Connector
             FtpSynch::Get.new.dowload_dir(path)
             self.parse_xml
         end
-
         def initialize
-            @xml_string = "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.03\" ДатаФормирования=\"#{Time.now.to_s.split(" ").first.tr(".","-")} \">"
+            @xml_string = ""
         end
-
-        @@instance = Connection.new
-
-        def self.instance
-            return @@instance
-        end
-
-        def xml_string
-            return @xml_string
-        end
-
-        def self.reset_xml_var
-            @@instance = Connection.new
-            @xml_string = "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.03\" ДатаФормирования=\"#{Time.now.to_s.split(" ").first.tr(".","-")} \">"
-        end
-
-
         def parse_xml
             puts 'Start parse xml!'
             # If file present
@@ -70,6 +52,7 @@ module Synergy1c7Connector
         def discharge(order)
             order.discharge = true
             order.save
+            xml
             create_xml_discharge(order)
         end
 
@@ -93,6 +76,10 @@ module Synergy1c7Connector
 
 
         private
+
+        def xml
+            @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.03\" ДатаФормирования=\"#{Time.now.to_s.split(" ").first.tr(".","-")} \">"
+        end
 
         def get_property_values(xml_values)
             property_values = Hash.new
@@ -136,7 +123,7 @@ module Synergy1c7Connector
 
         def create_xml_discharge(order)
             tag "Документ" do
-                tag "Номер", :text => order.number
+                tag "Номер", :text => order.id
                 tag "Дата", :text => order.created_at.to_s.split(" ").first.tr(".","-")
                 tag "ХозОперация", :text => "Заказ товара"
                 tag "Роль", :text => "Администратор"
@@ -192,9 +179,9 @@ module Synergy1c7Connector
                     end
                 end
             end
-            string = File.read(Rails.root.join('from.xml'))
+            string = File.read("#{Rails.root}/from.xml")
             string << @xml_string
-            File.open("from.xml", 'w') { |f| f.write(string) }
+            File.open("#{Rails.root}/from.xml", 'w') { |f| f.write(string) }
         end
 
         def set_product_price
@@ -341,8 +328,6 @@ module Synergy1c7Connector
                 end
             end
         end
-
-        private_class_method :new
     end
 end
 
