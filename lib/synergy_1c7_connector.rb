@@ -41,7 +41,6 @@ module Synergy1c7Connector
             @xml_string = "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.03\" ДатаФормирования=\"#{Time.now.to_s.split(" ").first.tr(".","-")} \">"
         end
 
-        private_class_method :new
 
         def parse_xml
             puts 'Start parse xml!'
@@ -339,6 +338,8 @@ module Synergy1c7Connector
                 end
             end
         end
+
+        private_class_method :new
     end
 end
 
