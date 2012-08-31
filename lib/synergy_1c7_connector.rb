@@ -52,7 +52,7 @@ module Synergy1c7Connector
         def discharge(order)
             order.discharge = true
             order.save
-            if !File.exist('from.xml')
+            if !File.exist?('from.xml')
                 File.open('from.xml', 'w') {|f| f.write('') }
             end
             xml if File.read('from.xml').blank?
