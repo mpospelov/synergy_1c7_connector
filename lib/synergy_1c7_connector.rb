@@ -131,17 +131,30 @@ module Synergy1c7Connector
                 tag "Курс", :text => "1"
                 tag "Сумма", :text => order.total
                 tag "Контрагенты" do
-                    tag "Контрагент" do
-                        tag "Наименование", :text =>  order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
-                        tag "Роль", :text => "Покупатель"
-                        tag "ПолноеНаименование", :text => order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
-                        tag "Фамилия", :text => order.ship_address.lastname
-                        tag "Имя", :text => order.ship_address.firstname
-                        tag "АдресРегистрации" do
-                            tag "Представление", :text => order.ship_address.address1
-                            tag "АдресноеПоле" do
-                                tag "Тип", :text => "Почтовый индекс"
-                                tag "Значение", :text => order.ship_address.zipcode
+                    if order.user.juridical
+                        tag "Контрагент" do
+                            tag "Наименование", :text => 'Юридическое лицо'
+                            tag "Роль", :text => "Покупатель"
+                            tag "ПолноеНаименование", :text => 'Юридическое лицо'
+                            tag "Фамилия", :text => 'Юридическое лицо'
+                            tag "Имя", :text => 'Юридическое лицо'
+                            tag "АдресРегистрации" do
+                                tag "Представление", :text => order.user.juridical_address
+                            end
+                        end
+                    else
+                        tag "Контрагент" do
+                            tag "Наименование", :text =>  order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
+                            tag "Роль", :text => "Покупатель"
+                            tag "ПолноеНаименование", :text => order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
+                            tag "Фамилия", :text => order.ship_address.lastname
+                            tag "Имя", :text => order.ship_address.firstname
+                            tag "АдресРегистрации" do
+                                tag "Представление", :text => order.ship_address.address1
+                                tag "АдресноеПоле" do
+                                    tag "Тип", :text => "Почтовый индекс"
+                                    tag "Значение", :text => order.ship_address.zipcode
+                                end
                             end
                         end
                     end
