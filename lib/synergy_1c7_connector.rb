@@ -81,7 +81,7 @@ module Synergy1c7Connector
         private
 
         def xml
-            @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.03\" ДатаФормирования=\"#{Time.now.to_s.split(" ").first.tr(".","-")} \">"
+            @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.03\" ДатаФормирования=\"#{Time.now.year.to_s + '-' + Time.now.month.to_s + ' ' +  Time.now.day.to_s } \">"
         end
 
         def get_property_values(xml_values)
@@ -127,7 +127,7 @@ module Synergy1c7Connector
         def create_xml_discharge(order)
             tag "Документ" do
                 tag "Номер", :text => order.id
-                tag "Дата", :text => order.created_at.to_s.split(" ").first.tr(".","-")
+                tag "Дата", :text => order.created_at.year.to_s + "-" + order.created_at.month.to_s + "-"+ order.created_at.day.to_s
                 tag "ХозОперация", :text => "Заказ товара"
                 tag "Роль", :text => "Администратор"
                 tag "Валюта", :text => "руб"
