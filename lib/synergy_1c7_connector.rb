@@ -168,7 +168,7 @@ module Synergy1c7Connector
                         tag "Товар" do
                             tag "Ид", :text => line_item.variant.code_1c
                             tag "Группы", :text => line_item.product.taxons.where("taxons.code_1c is not NULL").first.code_1c
-                            tag "Наименование", :text => line_item.product.name
+                            tag "Наименование", :text => line_item.product.name.gsub("#{line_item.product.sku} ", '')
                             tag "БазоваяЕдиница", {"Код" => "796", "НаименованиеПолное" => "Штука", "МеждународноеСокращение" => "PCE", :text => "шт" }
                             tag "ЦенаЗаЕдиницу", :text => line_item.price
                             tag "Количество", :text => line_item.quantity
