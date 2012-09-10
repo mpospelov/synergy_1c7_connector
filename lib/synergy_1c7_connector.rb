@@ -220,10 +220,8 @@ module Synergy1c7Connector
         def parse_groups_from_import_xml(groups, taxon)
             groups.each do |group|
                 new_taxon = Taxon.find_or_create_by_code_1c(group.css("Ид").first.text)
-                if new_taxon.new_record?
-                    new_taxon.update_attributes(:name => group.css("Наименование").first.text, :taxonomy_id => taxon.taxonomy_id, :parent_id => taxon.id)
-                    parse_groups_from_import_xml(group.css("Группы Группа"), new_taxon)
-                end
+                new_taxon.update_attributes(:name => group.css("Наименование").first.text, :taxonomy_id => taxon.taxonomy_id, :parent_id => taxon.id) if new_taxon.new_record?
+                parse_groups_from_import_xml(group.css("Группы Группа"), new_taxon) if !group.css("Группы Группа").blank?
             end
         end
 
@@ -346,4 +344,3 @@ module Synergy1c7Connector
         end
     end
 end
-
