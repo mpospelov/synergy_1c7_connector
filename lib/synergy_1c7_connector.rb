@@ -122,7 +122,8 @@ module Synergy1c7Connector
                 new_taxon.save
                 create_similar_taxons(new_taxon, taxon_copy_from_child)
             end
-            Taxon.find_by_name('РАСПРОДАЖА').destroy
+            destroy_tax = Taxon.find_by_name('РАСПРОДАЖА')
+            destroy_tax.destroy if not destroy_tax.parent_id.blank?
         end
 
         def create_xml_discharge(order)
