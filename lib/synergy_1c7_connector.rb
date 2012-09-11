@@ -122,6 +122,7 @@ module Synergy1c7Connector
                 new_taxon.save
                 create_similar_taxons(new_taxon, taxon_copy_from_child)
             end
+            Taxon.find_by_name('РАСПРОДАЖА').destroy
         end
 
         def create_xml_discharge(order)
