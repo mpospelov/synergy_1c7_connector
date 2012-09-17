@@ -122,8 +122,7 @@ module Synergy1c7Connector
                 new_taxon.save
                 create_similar_taxons(new_taxon, taxon_copy_from_child)
             end
-            destroy_tax = Taxon.find_by_name('РАСПРОДАЖА')
-            destroy_tax.destroy if not destroy_tax.parent_id.blank?
+            Taxon.where(:name => 'РАСПРОДАЖА').where('taxons.parent_id is not null').destroy_all
         end
 
         def create_xml_discharge(order)
@@ -131,23 +130,23 @@ module Synergy1c7Connector
                 tag "Номер", :text => order.id
                 tag "Дата", :text => order.created_at.year.to_s + "-" + order.created_at.month.to_s + "-"+ order.created_at.day.to_s
                 tag "ХозОперация", :text => "Заказ товара"
-                tag "Роль", :text => "Администратор"
+                tag "Роль", :text => "ПолныеПрава"
                 tag "Валюта", :text => "руб"
                 tag "Курс", :text => "1"
                 tag "Сумма", :text => order.total
                 tag "Контрагенты" do
-                    if order.user.juridical
-                        tag "Контрагент" do
-                            tag "Наименование", :text => 'Юридическое лицо'
-                            tag "Роль", :text => "Покупатель"
-                            tag "ПолноеНаименование", :text => 'Юридическое лицо'
-                            tag "Фамилия", :text => 'Юридическое лицо'
-                            tag "Имя", :text => 'Юридическое лицо'
-                            tag "АдресРегистрации" do
-                                tag "Представление", :text => order.user.juridical_address
-                            end
-                        end
-                    else
+                   # if order.user.juridical
+                   #     tag "Контрагент" do
+                   #         tag "Наименование", :text => 'Юридическое лицо'
+                   #         tag "Роль", :text => "Покупатель"
+                   #         tag "ПолноеНаименование", :text => 'Юридическое лицо'
+                   #         tag "Фамилия", :text => 'Юридическое лицо'
+                   #         tag "Имя", :text => 'Юридическое лицо'
+                   #         tag "АдресРегистрации" do
+                   #             tag "Представление", :text => order.user.juridical_address
+                   #         end
+                   #     end
+                   # else
                         tag "Контрагент" do
                             tag "Наименование", :text =>  order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
                             tag "Роль", :text => "Покупатель"
@@ -161,7 +160,7 @@ module Synergy1c7Connector
                                     tag "Значение", :text => order.ship_address.zipcode
                                 end
                             end
-                        end
+                      #  end
                     end
                 end
                 tag "Время", :text => order.created_at.hour.to_s + ":" + order.created_at.min.to_s + ":" + order.created_at.sec.to_s
