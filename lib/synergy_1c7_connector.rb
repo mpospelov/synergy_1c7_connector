@@ -52,10 +52,17 @@ module Synergy1c7Connector
         def discharge(order)
             order.discharge = true
             order.save
-            if !File.exist?('from.xml')
-                File.open('from.xml', 'w') {|f| f.write('') }
+            if order.user.juridical
+                if !File.exist?('fromur.xml')
+                    File.open('fromur.xml', 'w') {|f| f.write('') }
+                end
+                xml if File.read('fromur.xml').blank?
+            else
+                if !File.exist?('from.xml')
+                    File.open('from.xml', 'w') {|f| f.write('') }
+                end
+                xml if File.read('from.xml').blank?
             end
-            xml if File.read('from.xml').blank?
             create_xml_discharge(order)
         end
 
@@ -201,9 +208,15 @@ module Synergy1c7Connector
                     end
                 end
             end
-            string = File.read("#{Rails.root}/from.xml")
-            string << @xml_string
-            File.open("#{Rails.root}/from.xml", 'w') { |f| f.write(string) }
+            if order.user.juridical
+                string = File.read("#{Rails.root}/fromur.xml")
+                string << @xml_string
+                File.open("#{Rails.root}/fromur.xml", 'w') { |f| f.write(string) }
+            else
+                string = File.read("#{Rails.root}/from.xml")
+                string << @xml_string
+                File.open("#{Rails.root}/from.xml", 'w') { |f| f.write(string) }
+            end
         end
 
         def set_product_price
