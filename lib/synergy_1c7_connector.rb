@@ -57,13 +57,14 @@ module Synergy1c7Connector
                     File.open('fromur.xml', 'w') {|f| f.write('') }
                 end
                 xml if File.read('fromur.xml').blank?
+                create_ur_xml_discharge(order)
             else
                 if !File.exist?('from.xml')
                     File.open('from.xml', 'w') {|f| f.write('') }
                 end
                 xml if File.read('from.xml').blank?
+                create_xml_discharge(order)
             end
-            create_xml_discharge(order)
         end
 
         protected
@@ -83,7 +84,6 @@ module Synergy1c7Connector
             @xml_string << text.to_s.gsub(/[&"'<>]/) {|match| REPLACEMENTS[match]} if text
             @xml_string << "</#{tag}>"
         end
-
 
         private
 
@@ -133,10 +133,11 @@ module Synergy1c7Connector
             end
             Taxon.where(:name => 'РАСПРОДАЖА').where('taxons.parent_id is not null').destroy_all
         end
+#########################################################
 
-        def create_xml_discharge(order)
+        def create_ur_xml_discharge(order)
             tag "Документ" do
-                tag "Номер", :text => order.id
+                tag "Номер", :text => order.number
                 month = (order.created_at.month.to_s.size == 1 ) ? "0" << order.created_at.month.to_s : order.created_at.month.to_s
                 time = order.created_at.year.to_s + "-" + month + "-"+ order.created_at.day.to_s
 
@@ -147,32 +148,20 @@ module Synergy1c7Connector
                 tag "Курс", :text => "1"
                 tag "Сумма", :text => order.total
                 tag "Контрагенты" do
-                   # if order.user.juridical
-                   #     tag "Контрагент" do
-                   #         tag "Наименование", :text => 'Юридическое лицо'
-                   #         tag "Роль", :text => "Покупатель"
-                   #         tag "ПолноеНаименование", :text => 'Юридическое лицо'
-                   #         tag "Фамилия", :text => 'Юридическое лицо'
-                   #         tag "Имя", :text => 'Юридическое лицо'
-                   #         tag "АдресРегистрации" do
-                   #             tag "Представление", :text => order.user.juridical_address
-                   #         end
-                   #     end
-                   # else
-                        tag "Контрагент" do
-                            tag "Наименование", :text =>  order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
-                            tag "Роль", :text => "Покупатель"
-                            tag "ПолноеНаименование", :text => order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
-                            tag "Фамилия", :text => order.ship_address.lastname
-                            tag "Имя", :text => order.ship_address.firstname
-                            tag "АдресРегистрации" do
-                                tag "Представление", :text => order.ship_address.address1
-                                tag "АдресноеПоле" do
-                                    tag "Тип", :text => "Почтовый индекс"
-                                    tag "Значение", :text => order.ship_address.zipcode
-                                end
+                    tag "Контрагент" do
+                        tag "Наименование", :text => order.user.recipient
+                        tag "ОфициальноеНаименование", :text => order.user.recipient
+                        tag "Роль", :text => "Клиент"
+                        tag "ПолноеНаименование", :text => order.user.recipient
+                        tag "Фамилия", :text => order.ship_address.lastname
+                        tag "Имя", :text => order.ship_address.firstname
+                        tag "АдресРегистрации" do
+                            tag "Представление", :text => order.ship_address.address1
+                            tag "АдресноеПоле" do
+                                tag "Тип", :text => "Почтовый индекс"
+                                tag "Значение", :text => order.ship_address.zipcode
                             end
-                      #  end
+                        end
                     end
                 end
                 tag "Время", :text => order.created_at.hour.to_s + ":" + order.created_at.min.to_s + ":" + order.created_at.sec.to_s
@@ -208,15 +197,76 @@ module Synergy1c7Connector
                     end
                 end
             end
-            if order.user.juridical
-                string = File.read("#{Rails.root}/fromur.xml")
-                string << @xml_string
-                File.open("#{Rails.root}/fromur.xml", 'w') { |f| f.write(string) }
-            else
-                string = File.read("#{Rails.root}/from.xml")
-                string << @xml_string
-                File.open("#{Rails.root}/from.xml", 'w') { |f| f.write(string) }
+            string = File.read("#{Rails.root}/fromur.xml")
+            string << @xml_string
+            File.open("#{Rails.root}/fromur.xml", 'w') { |f| f.write(string) }
+        end
+
+##########################################################
+        def create_xml_discharge(order)
+            tag "Документ" do
+                tag "Номер", :text => order.number
+                month = (order.created_at.month.to_s.size == 1 ) ? "0" << order.created_at.month.to_s : order.created_at.month.to_s
+                time = order.created_at.year.to_s + "-" + month + "-"+ order.created_at.day.to_s
+
+                tag "Дата", :text => order.created_at.year.to_s + "-" + order.created_at.month.to_s + "-"+ order.created_at.day.to_s
+                tag "ХозОперация", :text => "Заказ товара"
+                tag "Роль", :text => "ПолныеПрава"
+                tag "Валюта", :text => "руб"
+                tag "Курс", :text => "1"
+                tag "Сумма", :text => order.total
+                tag "Контрагенты" do
+                    tag "Контрагент" do
+                        tag "Наименование", :text =>  order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
+                        tag "Роль", :text => "Покупатель"
+                        tag "ПолноеНаименование", :text => order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
+                        tag "Фамилия", :text => order.ship_address.lastname
+                        tag "Имя", :text => order.ship_address.firstname
+                        tag "АдресРегистрации" do
+                            tag "Представление", :text => order.ship_address.address1
+                            tag "АдресноеПоле" do
+                                tag "Тип", :text => "Почтовый индекс"
+                                tag "Значение", :text => order.ship_address.zipcode
+                            end
+                        end
+                    end
+                end
+                tag "Время", :text => order.created_at.hour.to_s + ":" + order.created_at.min.to_s + ":" + order.created_at.sec.to_s
+                tag "Товары" do
+                    order.line_items.each do |line_item|
+                        tag "Товар" do
+                            tag "Ид", :text => line_item.variant.code_1c
+                            tag "Группы", :text => line_item.product.taxons.where("taxons.code_1c is not NULL").first.code_1c
+                            tag "Наименование", :text => line_item.product.name.gsub("#{line_item.product.sku} ", '')
+                            tag "БазоваяЕдиница", {"Код" => "796", "НаименованиеПолное" => "Штука", "МеждународноеСокращение" => "PCE", :text => "шт" }
+                            tag "ЦенаЗаЕдиницу", :text => line_item.price
+                            tag "Количество", :text => line_item.quantity
+                            tag "Сумма", :text => (line_item.quantity.to_f * line_item.price.to_f).to_s
+                            tag "ЗначенияРеквизитов" do
+                                tag "ЗначениеРеквизита" do
+                                    tag "Наименование", :text => "ВидНоменклатуры"
+                                    tag "Значение", :text => "Бельё и колготки"
+                                end
+                                tag "ЗначениеРеквизита" do
+                                    tag "Наименование", :text => "ТипНоменклатуры"
+                                    tag "Значение", :text => "Товар"
+                                end
+                            end
+                            tag "ХарактеристикиТовара" do
+                                line_item.variant.option_values.each do |value|
+                                    tag "ХарактеристикаТовара" do
+                                        tag "Наименование", :text => value.option_type.name
+                                        tag "Значение", :text => value.name
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
             end
+            string = File.read("#{Rails.root}/from.xml")
+            string << @xml_string
+            File.open("#{Rails.root}/from.xml", 'w') { |f| f.write(string) }
         end
 
         def set_product_price
