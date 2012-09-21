@@ -7,14 +7,32 @@ module FtpSynch
           ftp.chdir('import')
           file = nil
           file = File.read("from.xml") if File.exist?("from.xml")
+          fileur = File.read("fromur.xml") if File.exist?("fromur.xml")
           if ftp.list('from.xml').empty? && !file.blank?
               ftp.close
               puts "Start uploading!"
               upload_from_xml
+          elsif ftp.list('fromur.xml').empty? && !fileur.blank?
+              ftp.close
+              puts "Start uploading!"
+              upload_fromur_xml
           else
               ftp.close
               puts "File exist"
           end
+      end
+
+      def self.upload_fromur_xml
+          ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
+          ftp.chdir('import')
+          xml_string = File.read(Rails.root.join('fromur.xml'))
+          xml_string << "</КоммерческаяИнформация>"
+          puts xml_string
+          File.open("fromur.xml", 'w') { |f| f.write(xml_string) }
+          ftp.put('fromur.xml', File.basename('fromur.xml'))
+          puts 'Finish!!!'
+          File.open("fromur.xml", 'w') { |f| f.write("") }
+          ftp.close
       end
 
       def self.upload_from_xml
