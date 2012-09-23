@@ -90,7 +90,7 @@ module Synergy1c7Connector
         def xml
             month = (Time.now.month.to_s.size == 1 ) ? "0" << Time.now.month.to_s : Time.now.month.to_s
             time = Time.now.year.to_s + '-' + month + '-' +  Time.now.day.to_s
-            @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.03\" ДатаФормирования=\"#{time} \">"
+            @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.03\" ДатаФормирования=\"#{time}\">"
         end
 
         def get_property_values(xml_values)
@@ -140,8 +140,7 @@ module Synergy1c7Connector
                 tag "Номер", :text => order.number
                 month = (order.created_at.month.to_s.size == 1 ) ? "0" << order.created_at.month.to_s : order.created_at.month.to_s
                 time = order.created_at.year.to_s + "-" + month + "-"+ order.created_at.day.to_s
-
-                tag "Дата", :text => order.created_at.year.to_s + "-" + order.created_at.month.to_s + "-"+ order.created_at.day.to_s
+                tag "Дата", :text => time
                 tag "ХозОперация", :text => "Заказ товара"
                 tag "Роль", :text => "ПолныеПрава"
                 tag "Валюта", :text => "руб"
@@ -209,7 +208,7 @@ module Synergy1c7Connector
                 month = (order.created_at.month.to_s.size == 1 ) ? "0" << order.created_at.month.to_s : order.created_at.month.to_s
                 time = order.created_at.year.to_s + "-" + month + "-"+ order.created_at.day.to_s
 
-                tag "Дата", :text => order.created_at.year.to_s + "-" + order.created_at.month.to_s + "-"+ order.created_at.day.to_s
+                tag "Дата", :text => time
                 tag "ХозОперация", :text => "Заказ товара"
                 tag "Роль", :text => "ПолныеПрава"
                 tag "Валюта", :text => "руб"
