@@ -1,5 +1,8 @@
 #encoding: UTF-8
 class Admin::OneC7ConnectorsController < Admin::BaseController
+    def show
+
+    end
     def create
         ConnectorWorker.perform_async
         redirect_to new_admin_one_c7_connector_path, :notice => t(:successful_1c_import)
