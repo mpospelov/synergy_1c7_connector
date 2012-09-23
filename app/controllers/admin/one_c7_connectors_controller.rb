@@ -5,7 +5,7 @@ class Admin::OneC7ConnectorsController < Admin::BaseController
     end
     def create
         ConnectorWorker.perform_async
-        redirect_to new_admin_one_c7_connector_path, :notice => t(:successful_1c_import)
+        redirect_to admin_one_c7_connector_path, :notice => t(:successful_1c_import)
     end
 
     def discharge
