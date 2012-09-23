@@ -11,6 +11,6 @@ class Synergy1c7ConnectorHooks < Spree::ThemeSupport::HookListener
     %(<li<%== ' class="active"' if controller.controller_name == 'one_c7_connectors' %>><%= link_to t("one_c7_connector"), new_admin_one_c7_connector_path %></li>)
   end
    insert_after :admin_tabs do
-      %(<%= tab(:new_admin_one_c7_connector) %>)
+      %(<%= tab(:one_c7_connector) %>)
   end
 end
