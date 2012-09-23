@@ -11,8 +11,9 @@ class Synergy1c7ConnectorHooks < Spree::ThemeSupport::HookListener
   end
   insert_before :admin_dashboard do
       %(<%= link_to admin_one_c7_connector_path, :class => "button" do %>
-        <span><%= t("one_c7_connector") %> </span>
+        <span><%= t("one_c7_connector") %></span>
        <% end %>
+       <br>
        )
   end
 end
