@@ -152,8 +152,6 @@ module Synergy1c7Connector
                         tag "ОфициальноеНаименование", :text => order.user.recipient
                         tag "Роль", :text => "Клиент"
                         tag "ПолноеНаименование", :text => order.user.recipient
-                        tag "Фамилия", :text => order.ship_address.lastname
-                        tag "Имя", :text => order.ship_address.firstname
                         tag "АдресРегистрации" do
                             tag "Представление", :text => order.ship_address.address1
                             tag "АдресноеПоле" do
@@ -161,6 +159,8 @@ module Synergy1c7Connector
                                 tag "Значение", :text => order.ship_address.zipcode
                             end
                         end
+                        tag "ИНН", :text => order.user.inn
+                        tag "КПП", :text => order.user.kpp
                     end
                 end
                 tag "Время", :text => order.created_at.hour.to_s + ":" + order.created_at.min.to_s + ":" + order.created_at.sec.to_s
