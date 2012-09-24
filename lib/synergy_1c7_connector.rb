@@ -163,7 +163,12 @@ module Synergy1c7Connector
                         tag "КПП", :text => order.user.kpp
                     end
                 end
-                tag "Время", :text => order.created_at.hour.to_s + ":" + order.created_at.min.to_s + ":" + order.created_at.sec.to_s
+                hour = order.created_at.hour.to_s.size == 1 ? "0" << order.created_at.hour.to_s : order.created_at.hour.to_s
+                min = order.created_at.min.to_s.size == 1 ? "0" << order.created_at.min.to_s : order.created_at.min.to_s
+
+                sec = order.created_at.sec.to_s.size == 1 ? "0" << order.created_at.sec.to_s : order.created_at.sec.to_s
+                time = hour << ":" << min << ":" << sec
+                tag "Время", :text => time
                 tag "Товары" do
                     order.line_items.each do |line_item|
                         tag "Товар" do
@@ -230,7 +235,12 @@ module Synergy1c7Connector
                         end
                     end
                 end
-                tag "Время", :text => order.created_at.hour.to_s + ":" + order.created_at.min.to_s + ":" + order.created_at.sec.to_s
+                hour = order.created_at.hour.to_s.size == 1 ? "0" << order.created_at.hour.to_s : order.created_at.hour.to_s
+                min = order.created_at.min.to_s.size == 1 ? "0" << order.created_at.min.to_s : order.created_at.min.to_s
+
+                sec = order.created_at.sec.to_s.size == 1 ? "0" << order.created_at.sec.to_s : order.created_at.sec.to_s
+                time = hour << ":" << min << ":" << sec
+                tag "Время", :text => time
                 tag "Товары" do
                     order.line_items.each do |line_item|
                         tag "Товар" do
