@@ -81,7 +81,7 @@ module Synergy1c7Connector
             if block_given?
                 block.arity < 1 ? self.instance_eval(&block) : block.call(self)
             end
-            @xml_string << text.to_s.gsub(/[&"'<>]/) if text
+            @xml_string << text.to_s
             @xml_string << "</#{tag}>"
         end
 
