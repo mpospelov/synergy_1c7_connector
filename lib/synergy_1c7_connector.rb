@@ -90,7 +90,7 @@ module Synergy1c7Connector
         def xml
             month = (Time.now.month.to_s.size == 1 ) ? "0" << Time.now.month.to_s : Time.now.month.to_s
             time = Time.now.year.to_s + '-' + month + '-' +  Time.now.day.to_s
-            @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.03\" ДатаФормирования=\"#{time}\">"
+            @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.04\" ДатаФормирования=\"#{time}\">"
         end
 
         def get_property_values(xml_values)
