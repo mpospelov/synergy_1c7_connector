@@ -28,10 +28,10 @@ module FtpSynch
           xml_string = File.read(Rails.root.join('fromur.xml'))
           xml_string << "</КоммерческаяИнформация>"
           puts xml_string
-          File.open("fromur.xml", 'w') { |f| f.write(xml_string) }
+          File.open("fromur.xml", 'w:windows-1251') { |f| f.write(xml_string) }
           ftp.put('fromur.xml', File.basename('fromur.xml'))
           puts 'Finish!!!'
-          File.open("fromur.xml", 'w') { |f| f.write("") }
+          File.open("fromur.xml", 'w:windows-1251') { |f| f.write("") }
           ftp.close
       end
 
@@ -41,10 +41,10 @@ module FtpSynch
           xml_string = File.read(Rails.root.join('from.xml'))
           xml_string << "</КоммерческаяИнформация>"
           puts xml_string
-          File.open("from.xml", 'w') { |f| f.write(xml_string) }
+          File.open("from.xml", 'w:windows-1251') { |f| f.write(xml_string) }
           ftp.put('from.xml', File.basename('from.xml'))
           puts 'Finish!!!'
-          File.open("from.xml", 'w') { |f| f.write("") }
+          File.open("from.xml", 'w:windows-1251') { |f| f.write("") }
           ftp.close
       end
 
