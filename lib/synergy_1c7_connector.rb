@@ -145,7 +145,7 @@ module Synergy1c7Connector
                 tag "Роль", :text => "ПолныеПрава"
                 tag "Валюта", :text => "руб"
                 tag "Курс", :text => "1"
-                tag "Сумма", :text => order.total
+                tag "Сумма", :text => (order.total.to_s << "0").gsub(".", ",")
                 tag "Контрагенты" do
                     tag "Контрагент" do
                         tag "Наименование", :text => order.user.recipient
@@ -176,9 +176,9 @@ module Synergy1c7Connector
                             tag "Группы", :text => line_item.product.taxons.where("taxons.code_1c is not NULL").first.code_1c
                             tag "Наименование", :text => line_item.product.name.gsub("#{line_item.product.sku} ", '')
                             tag "БазоваяЕдиница", {"Код" => "796", "НаименованиеПолное" => "Штука", "МеждународноеСокращение" => "PCE", :text => "шт" }
-                            tag "ЦенаЗаЕдиницу", :text => line_item.price
+                            tag "ЦенаЗаЕдиницу", :text => (line_item.price.to_s << "0").gsub(".", ",")
                             tag "Количество", :text => line_item.quantity
-                            tag "Сумма", :text => (line_item.quantity.to_f * line_item.price.to_f).to_s
+                            tag "Сумма", :text => ((line_item.quantity.to_f * line_item.price.to_f).to_s << "0").gsub(".", ",")
                             tag "ЗначенияРеквизитов" do
                                 tag "ЗначениеРеквизита" do
                                     tag "Наименование", :text => "ВидНоменклатуры"
@@ -218,7 +218,7 @@ module Synergy1c7Connector
                 tag "Роль", :text => "ПолныеПрава"
                 tag "Валюта", :text => "руб"
                 tag "Курс", :text => "1"
-                tag "Сумма", :text => order.total
+                tag "Сумма", :text => (order.total.to_s << "0").gsub(".",",")
                 tag "Контрагенты" do
                     tag "Контрагент" do
                         tag "Наименование", :text =>  order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
@@ -248,9 +248,9 @@ module Synergy1c7Connector
                             tag "Группы", :text => line_item.product.taxons.where("taxons.code_1c is not NULL").first.code_1c
                             tag "Наименование", :text => line_item.product.name.gsub("#{line_item.product.sku} ", '')
                             tag "БазоваяЕдиница", {"Код" => "796", "НаименованиеПолное" => "Штука", "МеждународноеСокращение" => "PCE", :text => "шт" }
-                            tag "ЦенаЗаЕдиницу", :text => line_item.price
+                            tag "ЦенаЗаЕдиницу", :text => (line_item.price.to_s << "0").gsub(".", ",")
                             tag "Количество", :text => line_item.quantity
-                            tag "Сумма", :text => (line_item.quantity.to_f * line_item.price.to_f).to_s
+                            tag "Сумма", :text => ((line_item.quantity.to_f * line_item.price.to_f).to_s << "0").gsub(".", ",")
                             tag "ЗначенияРеквизитов" do
                                 tag "ЗначениеРеквизита" do
                                     tag "Наименование", :text => "ВидНоменклатуры"
