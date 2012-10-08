@@ -87,10 +87,8 @@ module Synergy1c7Connector
 
         private
 
-        def xml
-            month = (Time.now.month.to_s.size == 1 ) ? "0" << Time.now.month.to_s : Time.now.month.to_s
-            time = Time.now.year.to_s + '-' + month + '-' +  Time.now.day.to_s
-            @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.04\" ДатаФормирования=\"#{time}\">"
+        def xml            
+            @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.04\" ДатаФормирования=\"#{Time.now.strftime('%F')}\">"
         end
 
         def get_property_values(xml_values)
@@ -137,10 +135,8 @@ module Synergy1c7Connector
 
         def create_ur_xml_discharge(order)
             tag "Документ" do
-                tag "Номер", :text => order.number
-                month = (order.created_at.month.to_s.size == 1 ) ? "0" << order.created_at.month.to_s : order.created_at.month.to_s
-                time = order.created_at.year.to_s + "-" + month + "-"+ order.created_at.day.to_s
-                tag "Дата", :text => time
+                tag "Номер", :text => order.number                
+                tag "Дата", :text => order.created_at.strftime('%F')
                 tag "ХозОперация", :text => "Заказ товара"
                 tag "Роль", :text => "ПолныеПрава"
                 tag "Валюта", :text => "руб"
@@ -163,6 +159,7 @@ module Synergy1c7Connector
                         tag "КПП", :text => order.user.kpp
                     end
                 end
+                # TODO: use strftime!!!
                 hour = order.created_at.hour.to_s.size == 1 ? "0" << order.created_at.hour.to_s : order.created_at.hour.to_s
                 min = order.created_at.min.to_s.size == 1 ? "0" << order.created_at.min.to_s : order.created_at.min.to_s
 
@@ -210,10 +207,7 @@ module Synergy1c7Connector
         def create_xml_discharge(order)
             tag "Документ" do
                 tag "Номер", :text => order.number
-                month = (order.created_at.month.to_s.size == 1 ) ? "0" << order.created_at.month.to_s : order.created_at.month.to_s
-                time = order.created_at.year.to_s + "-" + month + "-"+ order.created_at.day.to_s
-
-                tag "Дата", :text => time
+                tag "Дата", :text => order.created_at.strftime('%F')
                 tag "ХозОперация", :text => "Заказ товара"
                 tag "Роль", :text => "ПолныеПрава"
                 tag "Валюта", :text => "руб"
