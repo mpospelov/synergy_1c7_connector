@@ -215,16 +215,16 @@ module Synergy1c7Connector
                 tag "Сумма", :text => (order.total.to_s << "0").gsub(".",",")
                 tag "Контрагенты" do
                     tag "Контрагент" do
-                        tag "Наименование", :text =>  order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
+                        tag "Наименование", :text =>  (order.ship_address.try(:lastname) || "") + " " + (order.ship_address.try(:firstname) || "") + " " + (order.ship_address.try(:secondname) || "")
                         tag "Роль", :text => "Покупатель"
-                        tag "ПолноеНаименование", :text => order.ship_address.lastname + " " + order.ship_address.firstname + " " + order.ship_address.secondname
-                        tag "Фамилия", :text => order.ship_address.lastname
-                        tag "Имя", :text => order.ship_address.firstname
+                        tag "ПолноеНаименование", :text => (order.ship_address.try(:lastname) || "") + " " + (order.ship_address.try(:firstname) || "") + " " + (order.ship_address.try(:secondname) || "")
+                        tag "Фамилия", :text => order.ship_address.try(:lastname)
+                        tag "Имя", :text => order.ship_address.try(:firstname)
                         tag "АдресРегистрации" do
-                            tag "Представление", :text => order.ship_address.address1
+                            tag "Представление", :text => order.ship_address.try(:address1)
                             tag "АдресноеПоле" do
                                 tag "Тип", :text => "Почтовый индекс"
-                                tag "Значение", :text => order.ship_address.zipcode
+                                tag "Значение", :text => order.ship_address.try(:zipcode)
                             end
                         end
                     end
