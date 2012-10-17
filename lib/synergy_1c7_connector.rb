@@ -311,6 +311,7 @@ module Synergy1c7Connector
                     variant.cost_price = prices.first
                     variant.price = prices.last
                     if xml_product.css("Количество").text.blank?
+                        puts "#{variant.product.name} count 0"
                         variant.count_on_hand = 0
                     else
                         variant.count_on_hand = xml_product.css("Количество").text if not xml_product.css("Количество").text.blank?
