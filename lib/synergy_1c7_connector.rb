@@ -310,11 +310,7 @@ module Synergy1c7Connector
                     prices.sort!
                     variant.cost_price = prices.first
                     variant.price = prices.last
-                    if not xml_product.css("Количество").text.blank?
-                        variant.count_on_hand = xml_product.css("Количество").text
-                    else
-                        variant.count_on_hand = 0
-                    end
+                    variant.count_on_hand = xml_product.css("Количество").text if not xml_product.css("Количество").text.blank?
                     if variant.new_record?
                         xml_product.css("ХарактеристикаТовара").each do |option|
                             if ProductOptionType.where(:product_id => product.id, :option_type_id => OptionType.find_by_name(option.css("Наименование").text).id).blank?
