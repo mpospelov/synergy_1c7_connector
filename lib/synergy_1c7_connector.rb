@@ -87,7 +87,7 @@ module Synergy1c7Connector
 
         private
 
-        def xml            
+        def xml
             @xml_string << "<?xml version=\"1.0\" encoding=\"windows-1251\"?><КоммерческаяИнформация ВерсияСхемы=\"2.04\" ДатаФормирования=\"#{Time.now.strftime('%F')}\">"
         end
 
@@ -135,7 +135,7 @@ module Synergy1c7Connector
 
         def create_ur_xml_discharge(order)
             tag "Документ" do
-                tag "Номер", :text => order.number                
+                tag "Номер", :text => order.number
                 tag "Дата", :text => order.created_at.strftime('%F')
                 tag "ХозОперация", :text => "Заказ товара"
                 tag "Роль", :text => "ПолныеПрава"
@@ -310,7 +310,11 @@ module Synergy1c7Connector
                     prices.sort!
                     variant.cost_price = prices.first
                     variant.price = prices.last
-                    variant.count_on_hand = xml_product.css("Количество").text if not xml_product.css("Количество").text.blank?
+                    if not xml_product.css("Количество").text.blank?
+                        variant.count_on_hand = xml_product.css("Количество").text
+                    else
+                        variant.count_on_hand = 0
+                    end
                     if variant.new_record?
                         xml_product.css("ХарактеристикаТовара").each do |option|
                             if ProductOptionType.where(:product_id => product.id, :option_type_id => OptionType.find_by_name(option.css("Наименование").text).id).blank?
