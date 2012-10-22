@@ -305,8 +305,8 @@ module Synergy1c7Connector
                     variant = Variant.find_or_initialize_by_code_1c(xml_product.css("Ид").text)
                     variant.product_id = product.id
                     prices = Array.new
-                    prices << xml_product.css("ЦенаЗаЕдиницу").first.text.to_i
-                    prices << xml_product.css("ЦенаЗаЕдиницу").last.text.to_i
+                    prices << xml_product.css("ЦенаЗаЕдиницу").first.text.to_f
+                    prices << xml_product.css("ЦенаЗаЕдиницу").last.text.to_f
                     prices.sort!
                     variant.cost_price = prices.first
                     variant.price = prices.last
