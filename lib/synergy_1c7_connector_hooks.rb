@@ -14,6 +14,7 @@ class Synergy1c7ConnectorHooks < Spree::ThemeSupport::HookListener
         <span><%= t("one_c7_connector") %></span>
        <% end %>
        <br>
+       <br>
        )
   end
 end
