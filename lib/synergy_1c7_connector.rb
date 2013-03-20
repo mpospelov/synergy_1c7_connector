@@ -25,6 +25,7 @@ module Synergy1c7Connector
             @xml_string = ""
         end
         def parse_xml
+            set_product_price
             puts 'Start parse xml!'
             # If file present
             import_path = "#{Rails.root}/webdata/import.xml"
@@ -274,10 +275,9 @@ module Synergy1c7Connector
 
         def set_product_price
             Product.all.each do |product|
-                if not product.variants.blank?
+                unless product.variants.blank?
                     price = 0
                     cost_price = 0
-                    code_1c = ""
                     product.variants.each do |var|
                         price = var.price if var.price.to_i != 0
                         cost_price = var.cost_price if var.cost_price.to_i != 0
@@ -315,6 +315,8 @@ module Synergy1c7Connector
                         variant.count_on_hand = 0
                     else
                         variant.count_on_hand = xml_product.css("Количество").text if not xml_product.css("Количество").text.blank?
+                        variant.deleted_at = nil
+                        variant.product.update_attribute(:deleted_at, nil)
                     end
                     if variant.new_record?
                         xml_product.css("ХарактеристикаТовара").each do |option|
