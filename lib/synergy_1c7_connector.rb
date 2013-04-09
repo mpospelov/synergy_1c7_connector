@@ -358,7 +358,7 @@ module Synergy1c7Connector
                     end
                     product.price = 0
                     images = xml_product.css("Картинка")
-                    images.each do |image|
+                    images.uniq.each do |image|
                         puts "Parse image in path #{image.text}"
                         filename = image.text.split('/').last
                         image = File.open("#{Rails.root}/webdata/" + image.text)
