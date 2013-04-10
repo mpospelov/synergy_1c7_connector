@@ -3,29 +3,24 @@ require 'net/ftp'
 module FtpSynch
   class Get
       def self.try_upload_from
-          begin
-              ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
-              ftp.chdir('import')
-              file = nil
-              file = File.read("from.xml") if File.exist?("from.xml")
-              fileur = File.read("fromur.xml") if File.exist?("fromur.xml")
-              if ftp.list('from.xml').empty? && !file.blank?
-                  ftp.close
-                  puts "Start uploading!"
-                  upload_from_xml
-              elsif ftp.list('fromur.xml').empty? && !fileur.blank?
-                  ftp.close
-                  puts "Start uploading!"
-                  upload_fromur_xml
-              else
-                  ftp.close
-                  puts "File exist"
-              end
-          rescue
-              raise "FTP CONNECTION ERROR"
-          ensure
+          ftp = Net::FTP.open('172.30.65.35', 'ru_ftpuser', 'FTP!pwd00')
+          ftp.chdir('import')
+          file = nil
+          file = File.read("from.xml") if File.exist?("from.xml")
+          fileur = File.read("fromur.xml") if File.exist?("fromur.xml")
+          if ftp.list('from.xml').empty? && !file.blank?
               ftp.close
+              puts "Start uploading!"
+              upload_from_xml
+          elsif ftp.list('fromur.xml').empty? && !fileur.blank?
+              ftp.close
+              puts "Start uploading!"
+              upload_fromur_xml
+          else
+              ftp.close
+              puts "File exist"
           end
+          ftp.close
       end
 
       def self.upload_fromur_xml
